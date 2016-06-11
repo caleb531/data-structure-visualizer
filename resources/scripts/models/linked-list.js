@@ -1,5 +1,4 @@
-(function ($) {
-$(document).ready(function () {
+(function ($, _, Backbone, app) {
 
 app.models.LinkedListNode = Backbone.Model.extend({
 	defaults: {
@@ -15,31 +14,28 @@ app.models.LinkedList = Backbone.Model.extend({
 	defaults: {
 		front: null,
 		rear: null,
-		count: 0
+		nodes: []
 	},
-	incrementCount: function () {
-		this.set('count', this.get('count') + 1);
-	},
-	decrementCount: function () {
-		this.set('count', this.get('count') - 1);
-	},
-	addRear: function (elem) {
-		newNode = new app.models.LinkedListNode({
-			elem: elem
-		});
-		newNode.set('next', null);
-		if (this.get('front') === null) {
-        	// Special case where list is currently empty
-			this.set('front', newNode);
-			this.set('rear', newNode);
-		} else {
-			// Regular case
-			this.get('rear').set('next', newNode);
-			this.set('rear', newNode);
+	setPointer: function (srcPointerName, dstPointerName) {
+		var dstPointer;
+		if (dstPointerName === 'front') {
+			dstPointer = this.get('front');
+		} else if (dstPointerName === 'rear') {
+			dstPointer = this.get('rear');
+		} else if (dstPointerName === 'null') {
+			dstPointer = null;
+		} else if (dstPointerName === 'new Node') {
+			dstPointer = new app.models.LinkedListNode({
+				value: 42
+			});
+			this.get('nodes').push(dstPointer);
 		}
-		this.incrementCount();
+		if (srcPointerName === 'front') {
+			this.set('front', dstPointer);
+		} else if (srcPointerName === 'rear') {
+			this.get('rear', dstPointer);
+		}
 	}
 });
 
-});
-}(jQuery));
+}(jQuery, window._, window.Backbone, window.app));
