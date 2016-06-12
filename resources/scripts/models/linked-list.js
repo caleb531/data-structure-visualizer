@@ -14,7 +14,9 @@ app.models.LinkedList = Backbone.Model.extend({
 	defaults: {
 		front: null,
 		rear: null,
-		nodes: []
+	},
+	initiailize: function () {
+		this.set('nodes', []);
 	},
 	setPointer: function (srcPointerName, dstPointerName) {
 		var dstPointer;
