@@ -1,13 +1,4 @@
-(function ($, _, Backbone) {
-
-var app = {
-	models: {},
-	views: {},
-	structureList: [
-		{value: 'LinkedList', label: 'Linked List'}
-	]
-};
-window.app = app;
+(function ($, _, Backbone, app) {
 
 app.views.ControlContainer = Backbone.View.extend({
 	initialize: function () {
@@ -42,4 +33,4 @@ var selectionView = new app.views.ControlContainer({
 	el: $('#controls')
 });
 
-}(jQuery, window._, window.Backbone));
+}(jQuery, window._, window.Backbone, window.app));
