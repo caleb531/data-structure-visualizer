@@ -1,12 +1,16 @@
 (function ($, _, Backbone, app) {
 
 app.views.ControlContainer = Backbone.View.extend({
-	initialize: function () {
-		this.setMenuOptions('#data-structure', app.structureList);
-		this.setDataStructure('LinkedList');
+	events: {
+		'change .data-structure': 'setDataStructure'
 	},
-	setMenuOptions: function (menuName, menuOptions) {
-		var $menu = $(menuName);
+	initialize: function () {
+		this.setMenuOptions('.data-structure',
+			app.views.ControlContainer.structureList);
+		this.setDataStructure();
+	},
+	setMenuOptions: function (menuSelector, menuOptions) {
+		var $menu = this.$el.find(menuSelector);
 		$menu.empty();
 		for (var o = 0; o < menuOptions.length; o += 1) {
 			$('<option>')
@@ -15,21 +19,27 @@ app.views.ControlContainer = Backbone.View.extend({
 				.appendTo($menu);
 		}
 	},
-	setDataStructure: function (structureName) {
+	setDataStructure: function () {
+		var structureName = this.$el.find('.data-structure').val();
+		// Variables pointing to constructors
 		var StructureModel = app.models[structureName];
 		var StructureView = app.views[structureName];
+		// Variables pointing to instances of the above constructors
 		var structureModel = new StructureModel();
 		var structureView = new StructureView({
 			el: $('#canvas')[0],
 			model: structureModel
 		});
-		// TODO: get this working right
-		this.setMenuOptions('#left-hand-side', StructureView.srcPointers);
-		this.setMenuOptions('#right-hand-side', StructureView.dstPointers);
+		this.setMenuOptions('.left-hand-side', StructureView.srcPointers);
+		this.setMenuOptions('.right-hand-side', StructureView.dstPointers);
 	}
+}, {
+	structureList: [
+		{value: 'LinkedList', label: 'Linked List'}
+	]
 });
 
-var selectionView = new app.views.ControlContainer({
+var controlContainerView = new app.views.ControlContainer({
 	el: $('#controls')
 });
 
