@@ -26,8 +26,9 @@ app.views.ControlContainer = Backbone.View.extend({
 		var StructureView = app.views[structureName];
 		// Variables pointing to instances of the above constructors
 		var structureModel = new StructureModel();
+		structureModel.initializeExample();
 		var structureView = new StructureView({
-			el: $('#canvas')[0],
+			el: $('#paper')[0],
 			model: structureModel
 		});
 		this.setMenuOptions('.left-hand-side', StructureView.srcPointers);

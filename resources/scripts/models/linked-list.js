@@ -28,7 +28,7 @@ app.models.LinkedList = Backbone.Model.extend({
 			dstPointer = null;
 		} else if (dstPointerName === 'new Node') {
 			dstPointer = new app.models.LinkedListNode({
-				value: 42
+				elem: 42
 			});
 			this.get('nodes').push(dstPointer);
 		}
@@ -37,6 +37,23 @@ app.models.LinkedList = Backbone.Model.extend({
 		} else if (srcPointerName === 'rear') {
 			this.get('rear', dstPointer);
 		}
+	},
+	initializeExample: function () {
+		var node3 = new app.models.LinkedListNode({
+			elem: 99
+		});
+		var node2 = new app.models.LinkedListNode({
+			elem: 42,
+			next: node3
+		});
+		var node1 = new app.models.LinkedListNode({
+			elem: 24,
+			next: node2
+		});
+		var nodes = [node1, node2, node3];
+		this.set('nodes', nodes);
+		this.set('front', nodes[0]);
+		this.set('', nodes[nodes.length - 1]);
 	}
 });
 
