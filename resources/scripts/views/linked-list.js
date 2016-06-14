@@ -21,15 +21,36 @@ app.views.LinkedList = Backbone.View.extend({
 			x, y,
 			styles.nodeWidth, styles.nodeHeight
 		).attr({
-			fill: '#fff',
-			stroke: '#000',
-			'stroke-width': 2
+			fill: styles.nodeFill,
+			stroke: styles.nodeStroke,
+			'stroke-width': styles.nodeStrokeWidth
 		});
+	},
+	drawNodePointer: function (node, x, y) {
+		var styles = this.constructor.styles;
+		var nextNode = node.get('next');
+		if (nextNode) {
+			this.paper.path([
+				'M',
+				(x + styles.nodeWidth),
+				(y + styles.nodeHeight / 2),
+				'L',
+				(x + styles.nodeWidth + styles.nodeSpaceX - styles.pointerSpaceEnd),
+				(y + styles.nodeHeight / 2)
+			]).attr({
+				fill: styles.nodeFill,
+				stroke: styles.nodeStroke,
+				'stroke-width': styles.nodeStrokeWidth,
+				'arrow-start': 'oval-wide-long',
+				'arrow-end': 'block-wide-long'
+			});
+		}
 	},
 	drawNode: function (node, x, y) {
 		var group = this.paper.set();
 		var styles = this.constructor.styles;
 		this.drawNodeBody(node, x, y);
+		this.drawNodePointer(node, x, y);
 		this.drawNodeText(node, x, y);
 	},
 	render: function () {
@@ -53,8 +74,13 @@ app.views.LinkedList = Backbone.View.extend({
 		canvasPaddingY: 50,
 		nodeWidth: 80,
 		nodeHeight: 60,
+		nodePointerRadius: 5,
+		pointerSpaceEnd: 4,
 		nodeSpaceX: 50,
-		nodeFontSize: 24
+		nodeFontSize: 24,
+		nodeFill: '#fff',
+		nodeStroke: '#000',
+		nodeStrokeWidth: 2,
 	},
 	srcPointers: [
 		{value: 'front', label: 'Front'},
