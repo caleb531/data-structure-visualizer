@@ -41,8 +41,16 @@ app.views.LinkedList = Backbone.View.extend({
 				fill: styles.nodeFill,
 				stroke: styles.nodeStroke,
 				'stroke-width': styles.nodeStrokeWidth,
-				'arrow-start': 'oval-wide-long',
 				'arrow-end': 'block-wide-long'
+			});
+			this.paper.circle(
+				x + styles.nodeWidth,
+				y + styles.nodeHeight / 2,
+				styles.nodePointerRadius
+			).attr({
+				fill: styles.nodeFill,
+				stroke: styles.nodeStroke,
+				'stroke-width': styles.nodeStrokeWidth
 			});
 		}
 	},
@@ -74,7 +82,7 @@ app.views.LinkedList = Backbone.View.extend({
 		canvasPaddingY: 50,
 		nodeWidth: 80,
 		nodeHeight: 60,
-		nodePointerRadius: 5,
+		nodePointerRadius: 8,
 		pointerSpaceEnd: 4,
 		nodeSpaceX: 50,
 		nodeFontSize: 24,
