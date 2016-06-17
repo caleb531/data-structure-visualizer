@@ -38,6 +38,7 @@ select {
 }
 
 .node-elem,
-.node-elem tspan {
+.node-elem tspan,
+.pointer-null-cross {
 	pointer-events: none;
 }
