@@ -36,3 +36,8 @@ select {
 .pointer-circle {
 	fill: #fff;
 }
+
+.node-elem,
+.node-elem tspan {
+	pointer-events: none;
+}
