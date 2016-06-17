@@ -31,8 +31,6 @@ app.views.ControlContainer = Backbone.View.extend({
 			el: $('#paper')[0],
 			model: structureModel
 		});
-		this.setMenuOptions('.left-hand-side', StructureView.srcPointers);
-		this.setMenuOptions('.right-hand-side', StructureView.dstPointers);
 	}
 }, {
 	structureList: [
