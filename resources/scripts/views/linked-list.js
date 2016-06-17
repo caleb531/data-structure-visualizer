@@ -30,36 +30,67 @@ app.views.LinkedList = Backbone.View.extend({
 			'class', 'node-body'
 		);
 	},
-	drawNodePointer: function (node, x, y) {
+	drawNodePointerArrow: function (node, nextNode, x, y) {
 		var styles = this.constructor.styles;
+		this.paper.path([
+			'M',
+			(x + styles.nodeWidth),
+			(y + styles.nodeHeight / 2),
+			'L',
+			(x + styles.nodeWidth + styles.nodeSpaceX - styles.pointerSpaceEnd),
+			(y + styles.nodeHeight / 2)
+		]).attr({
+			fill: styles.nodeFill,
+			stroke: styles.nodeStroke,
+			'stroke-width': styles.nodeStrokeWidth,
+			'arrow-end': 'block-wide-long'
+		}).node.setAttribute(
+			'class', 'pointer-arrow'
+		);
+	},
+	drawNodePointerCircle: function (node, x, y) {
+		var styles = this.constructor.styles;
+		this.paper.circle(
+			x + styles.nodeWidth,
+			y + styles.nodeHeight / 2,
+			styles.nodePointerRadius
+		).attr({
+			fill: styles.nodeFill,
+			stroke: styles.nodeStroke,
+			'stroke-width': styles.nodeStrokeWidth
+		}).node.setAttribute(
+			'class', 'pointer-circle'
+		);
+	},
+	drawNodeNullPointerCircle: function (node, x, y) {
+		var styles = this.constructor.styles;
+		this.drawNodePointerCircle(node, x, y);
+		this.paper.path([
+			'M',
+			(x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2)),
+			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
+			'L',
+			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
+			(y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2)),
+			'M',
+			(x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2)),
+			(y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2)),
+			'L',
+			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
+			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
+		]).attr({
+			fill: styles.nodeFill,
+			stroke: styles.nodeStroke,
+			'stroke-width': styles.nodeStrokeWidth
+		});
+	},
+	drawNodePointer: function (node, x, y) {
 		var nextNode = node.get('next');
 		if (nextNode) {
-			this.paper.path([
-				'M',
-				(x + styles.nodeWidth),
-				(y + styles.nodeHeight / 2),
-				'L',
-				(x + styles.nodeWidth + styles.nodeSpaceX - styles.pointerSpaceEnd),
-				(y + styles.nodeHeight / 2)
-			]).attr({
-				fill: styles.nodeFill,
-				stroke: styles.nodeStroke,
-				'stroke-width': styles.nodeStrokeWidth,
-				'arrow-end': 'block-wide-long'
-			}).node.setAttribute(
-				'class', 'pointer-arrow'
-			);
-			this.paper.circle(
-				x + styles.nodeWidth,
-				y + styles.nodeHeight / 2,
-				styles.nodePointerRadius
-			).attr({
-				fill: styles.nodeFill,
-				stroke: styles.nodeStroke,
-				'stroke-width': styles.nodeStrokeWidth
-			}).node.setAttribute(
-				'class', 'pointer-circle'
-			);
+			this.drawNodePointerArrow(node, nextNode, x, y);
+			this.drawNodePointerCircle(node, x, y);
+		} else {
+			this.drawNodeNullPointerCircle(node, x, y);
 		}
 	},
 	drawNode: function (node, x, y) {
