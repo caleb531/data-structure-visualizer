@@ -22,3 +22,17 @@ select {
 #paper-container svg {
 	border: solid 2px #000;
 }
+
+/* Linked list styles */
+
+.node-body,
+.pointer-arrow,
+.pointer-circle,
+.pointer-null-cross {
+	stroke-width: 2
+}
+
+.nody-body,
+.pointer-circle {
+	fill: #fff;
+}

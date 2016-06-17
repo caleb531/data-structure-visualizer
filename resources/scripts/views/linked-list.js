@@ -22,11 +22,7 @@ app.views.LinkedList = Backbone.View.extend({
 		this.paper.rect(
 			x, y,
 			styles.nodeWidth, styles.nodeHeight
-		).attr({
-			fill: styles.nodeFill,
-			stroke: styles.nodeStroke,
-			'stroke-width': styles.nodeStrokeWidth
-		}).node.setAttribute(
+		).node.setAttribute(
 			'class', 'node-body'
 		);
 	},
@@ -40,9 +36,6 @@ app.views.LinkedList = Backbone.View.extend({
 			(x + styles.nodeWidth + styles.nodeSpaceX - styles.pointerSpaceEnd),
 			(y + styles.nodeHeight / 2)
 		]).attr({
-			fill: styles.nodeFill,
-			stroke: styles.nodeStroke,
-			'stroke-width': styles.nodeStrokeWidth,
 			'arrow-end': 'block-wide-long'
 		}).node.setAttribute(
 			'class', 'pointer-arrow'
@@ -54,11 +47,7 @@ app.views.LinkedList = Backbone.View.extend({
 			x + styles.nodeWidth,
 			y + styles.nodeHeight / 2,
 			styles.nodePointerRadius
-		).attr({
-			fill: styles.nodeFill,
-			stroke: styles.nodeStroke,
-			'stroke-width': styles.nodeStrokeWidth
-		}).node.setAttribute(
+		).node.setAttribute(
 			'class', 'pointer-circle'
 		);
 	},
@@ -78,11 +67,9 @@ app.views.LinkedList = Backbone.View.extend({
 			'L',
 			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
 			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
-		]).attr({
-			fill: styles.nodeFill,
-			stroke: styles.nodeStroke,
-			'stroke-width': styles.nodeStrokeWidth
-		});
+		]).node.setAttribute(
+			'class', 'pointer-null-cross'
+		);
 	},
 	drawNodePointer: function (node, x, y) {
 		var nextNode = node.get('next');
@@ -122,12 +109,9 @@ app.views.LinkedList = Backbone.View.extend({
 		nodeWidth: 80,
 		nodeHeight: 60,
 		nodePointerRadius: 8,
-		pointerSpaceEnd: 4,
+		pointerSpaceEnd: 8,
 		nodeSpaceX: 50,
 		nodeFontSize: 24,
-		nodeFill: '#fff',
-		nodeStroke: '#000',
-		nodeStrokeWidth: 2,
 	},
 	srcPointers: [
 		{value: 'front', label: 'Front'},
