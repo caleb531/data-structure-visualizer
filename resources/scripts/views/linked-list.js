@@ -13,7 +13,9 @@ app.views.LinkedList = Backbone.View.extend({
 			String(node.get('elem'))
 		).attr({
 			'font-size': styles.nodeFontSize
-		});
+		}).node.setAttribute(
+			'class', 'node-elem'
+		);
 	},
 	drawNodeBody: function (node, x, y) {
 		var styles = this.constructor.styles;
@@ -24,7 +26,9 @@ app.views.LinkedList = Backbone.View.extend({
 			fill: styles.nodeFill,
 			stroke: styles.nodeStroke,
 			'stroke-width': styles.nodeStrokeWidth
-		});
+		}).node.setAttribute(
+			'class', 'node-body'
+		);
 	},
 	drawNodePointer: function (node, x, y) {
 		var styles = this.constructor.styles;
@@ -42,7 +46,9 @@ app.views.LinkedList = Backbone.View.extend({
 				stroke: styles.nodeStroke,
 				'stroke-width': styles.nodeStrokeWidth,
 				'arrow-end': 'block-wide-long'
-			});
+			}).node.setAttribute(
+				'class', 'pointer-arrow'
+			);
 			this.paper.circle(
 				x + styles.nodeWidth,
 				y + styles.nodeHeight / 2,
@@ -51,7 +57,9 @@ app.views.LinkedList = Backbone.View.extend({
 				fill: styles.nodeFill,
 				stroke: styles.nodeStroke,
 				'stroke-width': styles.nodeStrokeWidth
-			});
+			}).node.setAttribute(
+				'class', 'pointer-circle'
+			);
 		}
 	},
 	drawNode: function (node, x, y) {
