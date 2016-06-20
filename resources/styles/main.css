@@ -42,3 +42,29 @@ select {
 .pointer-null-cross {
 	pointer-events: none;
 }
+
+.step-0 .pointer-circle,
+.step-1 .node-body {
+	fill: #fc3;
+}
+.step-0 .pointer-circle,
+.step-1 .node-body {
+	stroke: #e63;
+}
+.step-1 .node-elem {
+	fill: #e30;
+}
+
+.src-pointer,
+.src-pointer {
+	fill: #8bf;
+	stroke: #36c;
+}
+
+.dst-node {
+	fill: #8e5;
+	stroke: #470;
+}
+.dst-node + .node-elem {
+	fill: #470;
+}
