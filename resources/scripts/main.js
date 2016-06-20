@@ -28,7 +28,7 @@ app.views.ControlContainer = Backbone.View.extend({
 		var structureModel = new StructureModel();
 		structureModel.initializeExample();
 		var structureView = new StructureView({
-			el: $('#paper')[0],
+			el: $('#paper-container')[0],
 			model: structureModel
 		});
 	}

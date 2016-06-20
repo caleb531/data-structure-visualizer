@@ -2,7 +2,8 @@
 
 app.views.LinkedList = Backbone.View.extend({
 	initialize: function () {
-		this.paper = Raphael('paper-container', 800, 400);
+		this.$el.empty();
+		this.paper = Raphael(this.el, 800, 400);
 		this.render();
 	},
 	drawNodeText: function (node, x, y) {
