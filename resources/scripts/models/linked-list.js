@@ -5,6 +5,15 @@ idGenerator = 0;
 //Note: id = -1 means a new node.
 newNodeID = -1;
 
+
+
+var NodeCollection = Backbone.Collection.extend({
+	model: app.models.LinkedListNode,
+
+	initialize: function () {
+
+	}});
+
 function NodeNotFoundException(id, message) {
 	this.id = id;
 	this.message = "";
@@ -16,10 +25,9 @@ function NodeNotFoundException(id, message) {
 
 app.models.LinkedListNode = Backbone.Model.extend({
 	defaults: {
-		elem: null,
 		next: null,
-		id : null,
-		pointerCount : 0
+		elem: null,
+		id : null
 	},
 
 	initiailize: function (elem) {
@@ -34,6 +42,7 @@ app.models.LinkedList = Backbone.Model.extend({
 	defaults: {
 		front: null,
 		rear: null,
+
 	},
 	initialize: function () {
 		this.set('reachableNodes', new NodeCollection()); //node id -> node object
@@ -46,10 +55,10 @@ app.models.LinkedList = Backbone.Model.extend({
 		dstNode = getNode(dstNodeId);
 
 		//did we find both the src and the dst node?
-		if(srcNode === undefined || srcNode === undefined) {
+		if(srcNode === undefined) {
 			throw new NodeNotFoundException(srcNodeId);
 		}
-		else if(dstNode === undefined || dstNode === undefined) {
+		if(dstNode === undefined) {
 			throw new NodeNotFoundException(dstNodeId);
 		}
 
@@ -72,13 +81,21 @@ app.models.LinkedList = Backbone.Model.extend({
 	getNode : function(id) {
 
 		//new Node?
-		if(id ==== newNodeID) {
-			newNode = new LinkedListNode();
-			this.get('reachableNodes').add(newNode);
-
+		if(id === newNodeID) {
+			newNode = new app.models.LinkedListNode();
 			return newNode;
 		}
 
+		//front or rear?
+		front = this.get('front');
+		if(front !== null && front.id === id) {
+			return front;
+		}
+
+		rear = this.get('rear');
+		if(rear !== null && rear.id === id) {
+			return rear;
+		}
 
 		//is the requested node reachable?
 		requestedNode = this.get('reachableNodes').get(id);
@@ -91,8 +108,10 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 
 	//Note: startNode is optional
-	updateNodeCollections : function (startNode, stopNode) {
-		newlyUnreachableNodes = sublist(startNode, stopNode);
+	updateNodeCollections : function (newNode, dstNode) {
+		this.get('reachableNodes').add(newNode);
+
+		newlyUnreachableNodes = sublist(newNode, dstNode);
 
 		//remove these nodes from the reachable nodes list
 		this.get('reachableNodes').remove(newlyUnreachableNodes);
@@ -116,7 +135,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 
 		return results;
-	}
+	},
 
 	getStartNode : function(startNode) {
 		if(startNode !== null && startNode !== undefined) {
@@ -134,7 +153,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		else {
 			return this.get('rear');
 		}
-	}
+	},
 
 
 	initializeExample: function () {
@@ -163,12 +182,5 @@ app.models.LinkedList = Backbone.Model.extend({
 		this.set('rear', nodes[2]);
 	}
 });
-
-var NodeCollection = Backbone.Collection.extend({
-	model: LinkedListNode,
-
-	initialize: function () {
-		
-		});
 
 }(jQuery, window._, window.Backbone, window.app));
