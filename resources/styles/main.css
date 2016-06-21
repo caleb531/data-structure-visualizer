@@ -21,52 +21,59 @@ select {
 
 #paper-container svg {
 	border: solid 2px #000;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
 }
 
 /* Linked list styles */
 
 .node-body,
 .pointer-arrow,
-.pointer-circle,
+.pointer-body,
 .null {
 	stroke-width: 2
 }
 
 .node-body,
-.pointer-circle,
+.pointer-body,
 .pointer-null-cross {
 	fill: #fff;
 }
 
-.node-elem,
-.node-elem tspan, {
+text,
+tspan {
 	pointer-events: none;
 }
 
-.step-0 .pointer-circle,
+.step-0 .pointer-body,
 .step-1 .node-body,
 .step-1 .null {
 	fill: #fc3;
 }
-.step-0 .pointer-circle,
+.step-0 .pointer-body,
 .step-1 .node-body,
 .step-1 .null {
-	stroke: #e63;
+	stroke: #f63;
 }
+.step-0 .pointer-label,
 .step-1 .node-elem {
-	fill: #e30;
+	fill: #c30;
 }
 
 .src-pointer,
 .src-pointer {
-	fill: #8bf;
-	stroke: #36c;
+	fill: #9cf;
+	stroke: #47d;
+}
+.src-pointer + .pointer-label {
+	fill: #149;
 }
 
 .dst-node {
-	fill: #8e5;
-	stroke: #470;
+	fill: #9f3;
+	stroke: #390;
 }
 .dst-node + .node-elem {
-	fill: #470;
+	fill: #170;
 }

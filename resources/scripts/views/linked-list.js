@@ -3,7 +3,7 @@
 
 app.views.LinkedList = Backbone.View.extend({
 	events: {
-		'mousedown .pointer-circle': 'onPressSrc',
+		'mousedown .pointer-body': 'onPressSrc',
 		'mousedown .node-body': 'onPressDst',
 		'mousedown .null': 'onPressDst'
 	},
@@ -41,7 +41,7 @@ app.views.LinkedList = Backbone.View.extend({
 			(x + styles.nodeWidth),
 			(y + styles.nodeHeight / 2),
 			'L',
-			(x + styles.nodeWidth + styles.nodeSpaceX - styles.pointerSpaceEnd),
+			(x + styles.nodeWidth + styles.nodeSpace - styles.pointerSpaceEnd),
 			(y + styles.nodeHeight / 2)
 		]).attr({
 			'arrow-end': 'block-wide-long'
@@ -56,7 +56,7 @@ app.views.LinkedList = Backbone.View.extend({
 			y + styles.nodeHeight / 2,
 			styles.nodePointerRadius
 		).node.setAttribute(
-			'class', 'pointer-circle'
+			'class', 'pointer-body'
 		);
 	},
 	drawNull: function (node, x, y) {
@@ -99,7 +99,7 @@ app.views.LinkedList = Backbone.View.extend({
 		if (!nextNode) {
 			this.drawNull(
 				node,
-				x + styles.nodeSpaceX + styles.pointerSpaceEnd,
+				x + styles.nodeSpace + styles.pointerSpaceEnd,
 				y
 			);
 		}
@@ -111,6 +111,40 @@ app.views.LinkedList = Backbone.View.extend({
 		this.drawNodeText(node, x, y);
 		this.drawNodePointer(node, x, y);
 	},
+	drawLabelPointer: function (node, x, y, labelId, labelName) {
+		var styles = this.constructor.styles;
+		var bodyWidth = (styles.nodeWidth / 2);
+		var bodyHeight = styles.pointerFontSize + (styles.pointerLabelPaddingY * 2);
+		this.paper.rect(
+			(x + styles.nodeWidth / 2) - (bodyWidth / 2),
+			(y - styles.nodeSpace + (styles.pointerFontSize / 2)) - (bodyHeight / 2),
+			bodyWidth,
+			bodyHeight
+		).node.setAttribute(
+			'class', 'pointer-body'
+		);
+		this.paper.text(
+			(x + styles.nodeWidth / 2),
+			(y - styles.nodeSpace + (styles.pointerFontSize / 2)),
+			labelName
+		).attr({
+			'font-size': styles.pointerFontSize
+		}).node.setAttribute(
+			'class', labelId + '-label pointer-label'
+		);
+		this.paper.path([
+			'M',
+			(x + styles.nodeWidth / 2),
+			(y - styles.nodeSpace + (styles.pointerSpaceEnd * 2)),
+			'L',
+			(x + styles.nodeWidth / 2),
+			(y - styles.pointerSpaceEnd)
+		]).attr({
+			'arrow-end': 'block-wide-long'
+		}).node.setAttribute(
+			'class', 'pointer-arrow'
+		);
+	},
 	render: function () {
 		var front = this.model.get('front');
 		var rear = this.model.get('rear');
@@ -119,9 +153,17 @@ app.views.LinkedList = Backbone.View.extend({
 		var x = styles.canvasPaddingX;
 		var y = styles.canvasPaddingY;
 		var dx = styles.nodeWidth +
-			styles.nodeSpaceX;
-		while (p !== rear) {
+			styles.nodeSpace;
+		while (p !== null) {
 			this.drawNode(p, x, y);
+			if (p === front && p === rear) {
+				this.drawLabelPointer(p, x - styles.nodeWidth/3, y, 'front', 'Front');
+				this.drawLabelPointer(p, x + styles.nodeWidth/3, y, 'rear', 'Rear');
+			} else if (p === front) {
+				this.drawLabelPointer(p, x, y, 'front', 'Front');
+			} else if (p === rear) {
+				this.drawLabelPointer(p, x, y, 'rear', 'Rear');
+			}
 			p = p.get('next');
 			x += dx;
 		}
@@ -158,13 +200,15 @@ app.views.LinkedList = Backbone.View.extend({
 }, {
 	styles: {
 		canvasPaddingX: 50,
-		canvasPaddingY: 50,
+		canvasPaddingY: 80,
 		nodeWidth: 80,
 		nodeHeight: 60,
 		nodePointerRadius: 10,
 		pointerSpaceEnd: 10,
-		nodeSpaceX: 50,
+		nodeSpace: 50,
 		nodeFontSize: 24,
+		pointerFontSize: 14,
+		pointerLabelPaddingY: 2
 	}
 });
 
