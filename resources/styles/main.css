@@ -21,6 +21,9 @@ select {
 
 #paper-container svg {
 	border: solid 2px #000;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
 }
 
 /* Linked list styles */
