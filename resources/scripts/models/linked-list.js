@@ -53,7 +53,8 @@ app.models.LinkedList = Backbone.Model.extend({
 		var nodes = [node1, node2, node3];
 		this.set('nodes', nodes);
 		this.set('front', nodes[0]);
-		this.set('rear', nodes[nodes.length - 1]);
+		// this.set('rear', nodes[nodes.length - 1]);
+		this.set('rear', nodes[0]);
 	}
 });
 
