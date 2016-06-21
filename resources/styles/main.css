@@ -28,17 +28,45 @@ select {
 .node-body,
 .pointer-arrow,
 .pointer-circle,
-.pointer-null-cross {
+.null {
 	stroke-width: 2
 }
 
 .node-body,
-.pointer-circle {
+.pointer-circle,
+.pointer-null-cross {
 	fill: #fff;
 }
 
 .node-elem,
-.node-elem tspan,
-.pointer-null-cross {
+.node-elem tspan, {
 	pointer-events: none;
+}
+
+.step-0 .pointer-circle,
+.step-1 .node-body,
+.step-1 .null {
+	fill: #fc3;
+}
+.step-0 .pointer-circle,
+.step-1 .node-body,
+.step-1 .null {
+	stroke: #e63;
+}
+.step-1 .node-elem {
+	fill: #e30;
+}
+
+.src-pointer,
+.src-pointer {
+	fill: #8bf;
+	stroke: #36c;
+}
+
+.dst-node {
+	fill: #8e5;
+	stroke: #470;
+}
+.dst-node + .node-elem {
+	fill: #470;
 }

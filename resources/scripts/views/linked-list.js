@@ -1,9 +1,17 @@
+/* jshint devel: true */
 (function ($, _, Backbone, Raphael, app) {
 
 app.views.LinkedList = Backbone.View.extend({
+	events: {
+		'mousedown .pointer-circle': 'onPressSrc',
+		'mousedown .node-body': 'onPressDst',
+		'mousedown .null': 'onPressDst'
+	},
 	initialize: function () {
-		this.paper = Raphael('paper-container', 800, 400);
+		this.$el.empty();
+		this.paper = Raphael(this.el, 800, 400);
 		this.render();
+		this.setStep(0);
 	},
 	drawNodeText: function (node, x, y) {
 		var styles = this.constructor.styles;
@@ -51,41 +59,57 @@ app.views.LinkedList = Backbone.View.extend({
 			'class', 'pointer-circle'
 		);
 	},
-	drawNodeNullPointerCircle: function (node, x, y) {
+	drawNull: function (node, x, y) {
 		var styles = this.constructor.styles;
-		this.drawNodePointerCircle(node, x, y);
 		this.paper.path([
 			'M',
-			(x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
+			(x + styles.nodeWidth - styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 + styles.nodePointerRadius),
 			'L',
-			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2)),
+			(x + styles.nodeWidth + styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 + styles.nodePointerRadius),
+			'L',
+			(x + styles.nodeWidth + styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 - styles.nodePointerRadius),
+			'L',
+			(x + styles.nodeWidth - styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 - styles.nodePointerRadius),
+			'Z',
 			'M',
-			(x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2)),
+			(x + styles.nodeWidth - styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 + styles.nodePointerRadius),
 			'L',
-			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
+			(x + styles.nodeWidth + styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 - styles.nodePointerRadius),
+			'M',
+			(x + styles.nodeWidth - styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 - styles.nodePointerRadius),
+			'L',
+			(x + styles.nodeWidth + styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 + styles.nodePointerRadius),
 		]).node.setAttribute(
-			'class', 'pointer-null-cross'
+			'class', 'null'
 		);
 	},
 	drawNodePointer: function (node, x, y) {
 		var nextNode = node.get('next');
-		if (nextNode) {
-			this.drawNodePointerArrow(node, nextNode, x, y);
-			this.drawNodePointerCircle(node, x, y);
-		} else {
-			this.drawNodeNullPointerCircle(node, x, y);
+		var styles = this.constructor.styles;
+		this.drawNodePointerArrow(node, nextNode, x, y);
+		this.drawNodePointerCircle(node, x, y);
+		if (!nextNode) {
+			this.drawNull(
+				node,
+				x + styles.nodeSpaceX + styles.pointerSpaceEnd,
+				y
+			);
 		}
 	},
 	drawNode: function (node, x, y) {
 		var group = this.paper.set();
 		var styles = this.constructor.styles;
 		this.drawNodeBody(node, x, y);
-		this.drawNodePointer(node, x, y);
 		this.drawNodeText(node, x, y);
+		this.drawNodePointer(node, x, y);
 	},
 	render: function () {
 		var front = this.model.get('front');
@@ -101,6 +125,35 @@ app.views.LinkedList = Backbone.View.extend({
 			p = p.get('next');
 			x += dx;
 		}
+	},
+	setStep: function (stepNum) {
+		this.step = stepNum;
+		console.log('proceed to step ' + stepNum);
+		$(this.paper.canvas).removeClass().addClass('step-' + stepNum);
+	},
+	onPressSrc: function (event) {
+		var $pointer = $(event.target);
+		if (this.step === 1 && $pointer.hasClass('src-pointer')) {
+			// do something with this.model here
+			$pointer.removeClass('src-pointer');
+			this.setStep(0);
+		} else if (this.step === 0) {
+			// do something with this.model here
+			$pointer.addClass('src-pointer');
+			this.setStep(1);
+		}
+	},
+	onPressDst: function (event) {
+		var $node = $(event.target);
+		if (this.step === 2 && $node.hasClass('dst-node')) {
+			// do something with this.model here
+			$node.removeClass('dst-node');
+			this.setStep(1);
+		} else if (this.step === 1) {
+			// do something with this.model here
+			$node.addClass('dst-node');
+			this.setStep(2);
+		}
 	}
 }, {
 	styles: {
@@ -108,29 +161,11 @@ app.views.LinkedList = Backbone.View.extend({
 		canvasPaddingY: 50,
 		nodeWidth: 80,
 		nodeHeight: 60,
-		nodePointerRadius: 8,
-		pointerSpaceEnd: 8,
+		nodePointerRadius: 10,
+		pointerSpaceEnd: 10,
 		nodeSpaceX: 50,
 		nodeFontSize: 24,
-	},
-	srcPointers: [
-		{value: 'front', label: 'Front'},
-		{value: 'front-next', label: 'Front->Next'},
-		{value: 'rear', label: 'Rear'},
-		{value: 'rear-next', label: 'Rear->Next'},
-		{value: 'p', label: 'P'},
-		{value: 'p-next', label: 'P->Next'}
-	],
-	dstPointers: [
-		{value: 'front', label: 'Front'},
-		{value: 'front-next', label: 'Front->Next'},
-		{value: 'rear', label: 'Rear'},
-		{value: 'rear-next', label: 'Rear->Next'},
-		{value: 'p', label: 'P'},
-		{value: 'p-next', label: 'P->Next'},
-		{value: 'new-node', label: 'new Node'},
-		{value: 'null', label: 'NULL'}
-	]
+	}
 });
 
 }(jQuery, window._, window.Backbone, window.Raphael, window.app));
