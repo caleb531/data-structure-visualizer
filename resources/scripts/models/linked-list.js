@@ -45,11 +45,11 @@ app.models.LinkedList = Backbone.Model.extend({
 		srcNode = getNode(srcNodeId);
 		dstNode = getNode(dstNodeId);
 
-		//validate...
-		if(srcNode === undefined) {
+		//did we find both the src and the dst node?
+		if(srcNode === undefined || srcNode === undefined) {
 			throw new NodeNotFoundException(srcNodeId);
 		}
-		else if(dstNode === undefined) {
+		else if(dstNode === undefined || dstNode === undefined) {
 			throw new NodeNotFoundException(dstNodeId);
 		}
 
@@ -86,7 +86,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		if(requestedNode !== null && requestedNode !== undefined)
 			return requestedNode;
 
-		//maybe the requested node is a unreachable node?
+		//maybe the requested node is an unreachable node?
 		return this.get('unreachableNodes').get(id);
 	},
 
@@ -101,15 +101,17 @@ app.models.LinkedList = Backbone.Model.extend({
 		this.get('unreachableNodes').add(newlyUnreachableNodes);
 	},
 
+	//both parameters are optional
 	sublist : function(startNode, endNode) {
 		//get out starting place
 		start = getStartNode(startNode);
 		end = getEndNode(endNode);
 
+		currentNode = start;
 		results = [];
 
 		//Note: cycles are assumed to not be present for the purposes of this function
-		while(currentNode !== null && currentNode !== stopNode) {
+		while(currentNode !== null && currentNode.id !== end.id) {
 			results.push(currentNode);
 		}
 
@@ -138,27 +140,27 @@ app.models.LinkedList = Backbone.Model.extend({
 	initializeExample: function () {
 		var node3 = new app.models.LinkedListNode({
 			elem: 99,
-			id: '2'
+			id: 2
 		});
 		var node2 = new app.models.LinkedListNode({
 			elem: 42,
 			next: node3,
-			id: '1'
+			id: 1
 		});
 		var node1 = new app.models.LinkedListNode({
 			elem: 24,
 			next: node2,
-			id: '0'
+			id: 0
 		});
-		//var nodes = [node1, node2, node3];
-		var nodes = {
-			'0' : node1,
-			'1' : node2,
-			'2' : node3
-		}
-		this.set('nodes', nodes);
-		this.set('front', nodes['0']);
-		this.set('', nodes[2]);
+
+		var nodes = [];
+		nodes.push(node1);
+		nodes.push(node2);
+		nodes.push(node3);
+
+		this.get('reachableNodes').add(nodes);
+		this.set('front', nodes[0]);
+		this.set('rear', nodes[2]);
 	}
 });
 
