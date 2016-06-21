@@ -8,11 +8,8 @@ newNodeID = -1;
 
 
 var NodeCollection = Backbone.Collection.extend({
-	model: app.models.LinkedListNode,
-
-	initialize: function () {
-
-	}});
+	model: app.models.LinkedListNode
+});
 
 function NodeNotFoundException(id, message) {
 	this.id = id;
@@ -45,8 +42,8 @@ app.models.LinkedList = Backbone.Model.extend({
 
 	},
 	initialize: function () {
-		this.set('reachableNodes', new NodeCollection()); //node id -> node object
-		this.set('unreachableNodes', new NodeCollection()); //node id -> node object
+		this.set('reachableNodes', new NodeCollection());
+		this.set('unreachableNodes', new NodeCollection());
 	},
 
 
@@ -177,7 +174,11 @@ app.models.LinkedList = Backbone.Model.extend({
 		nodes.push(node2);
 		nodes.push(node3);
 
-		this.get('reachableNodes').add(nodes);
+		nodesCol = new NodeCollection();
+		nodesCol.add(nodes)
+
+		this.set('reachableNodes', nodesCol);
+		this.set('unreachableNodes', new NodeCollection());
 		this.set('front', nodes[0]);
 		this.set('rear', nodes[2]);
 	}
