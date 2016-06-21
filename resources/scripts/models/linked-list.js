@@ -168,12 +168,7 @@ var NodeCollection = Backbone.Collection.extend({
 	model: LinkedListNode,
 
 	initialize: function () {
-		// When children on node change, update parent
-		this.on('change:left change:right', function(node, child) {
-			// If child node not removed
-			if (child !== null) {
-				child.set('parent', node);
-			}
+		
 		});
 
 }(jQuery, window._, window.Backbone, window.app));
