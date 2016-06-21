@@ -3,8 +3,9 @@
 
 app.views.LinkedList = Backbone.View.extend({
 	events: {
-		'mousedown .node-body': 'onPressNode',
-		'mousedown .pointer-circle': 'onPressPointer'
+		'mousedown .pointer-circle': 'onPressSrc',
+		'mousedown .node-body': 'onPressDst',
+		'mousedown .null': 'onPressDst'
 	},
 	initialize: function () {
 		this.$el.empty();
@@ -62,19 +63,32 @@ app.views.LinkedList = Backbone.View.extend({
 		var styles = this.constructor.styles;
 		this.paper.path([
 			'M',
-			(x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
+			(x + styles.nodeWidth - styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 + styles.nodePointerRadius),
 			'L',
-			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2)),
+			(x + styles.nodeWidth + styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 + styles.nodePointerRadius),
+			'L',
+			(x + styles.nodeWidth + styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 - styles.nodePointerRadius),
+			'L',
+			(x + styles.nodeWidth - styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 - styles.nodePointerRadius),
+			'Z',
 			'M',
-			(x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2)),
+			(x + styles.nodeWidth - styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 + styles.nodePointerRadius),
 			'L',
-			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
+			(x + styles.nodeWidth + styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 - styles.nodePointerRadius),
+			'M',
+			(x + styles.nodeWidth - styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 - styles.nodePointerRadius),
+			'L',
+			(x + styles.nodeWidth + styles.nodePointerRadius),
+			(y + styles.nodeHeight / 2 + styles.nodePointerRadius),
 		]).node.setAttribute(
-			'class', 'pointer-null-cross'
+			'class', 'null'
 		);
 	},
 	drawNodePointer: function (node, x, y) {
@@ -117,7 +131,7 @@ app.views.LinkedList = Backbone.View.extend({
 		console.log('proceed to step ' + stepNum);
 		$(this.paper.canvas).removeClass().addClass('step-' + stepNum);
 	},
-	onPressPointer: function (event) {
+	onPressSrc: function (event) {
 		var $pointer = $(event.target);
 		if (this.step === 1 && $pointer.hasClass('src-pointer')) {
 			// do something with this.model here
@@ -129,7 +143,7 @@ app.views.LinkedList = Backbone.View.extend({
 			this.setStep(1);
 		}
 	},
-	onPressNode: function (event) {
+	onPressDst: function (event) {
 		var $node = $(event.target);
 		if (this.step === 2 && $node.hasClass('dst-node')) {
 			// do something with this.model here
@@ -148,7 +162,7 @@ app.views.LinkedList = Backbone.View.extend({
 		nodeWidth: 80,
 		nodeHeight: 60,
 		nodePointerRadius: 10,
-		pointerSpaceEnd: 8,
+		pointerSpaceEnd: 10,
 		nodeSpaceX: 50,
 		nodeFontSize: 24,
 	}
