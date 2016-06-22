@@ -129,7 +129,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		var results = [];
 
 		//Note: cycles are assumed to not be present for the purposes of this function
-		while(currentNode !== null && currentNode.id !== end.id) {
+		while (currentNode !== null && currentNode.id !== end.id) {
 			results.push(currentNode);
 		}
 
@@ -171,18 +171,15 @@ app.models.LinkedList = Backbone.Model.extend({
 			id: 0
 		});
 
-		var nodes = [];
-		nodes.push(node1);
-		nodes.push(node2);
-		nodes.push(node3);
+		var nodes = new NodeCollection();
+		nodes.add(node1);
+		nodes.add(node2);
+		nodes.add(node3);
 
-		var nodesCol = new NodeCollection();
-		nodesCol.add(nodes);
-
-		this.set('reachableNodes', nodesCol);
+		this.set('reachableNodes', nodes);
 		this.set('unreachableNodes', new NodeCollection());
-		this.set('front', nodes[0]);
-		this.set('rear', nodes[2]);
+		this.set('front', node1);
+		this.set('rear', node3);
 	}
 });
 
