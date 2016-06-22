@@ -153,25 +153,22 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 	},
 
-	forEachReachable: function(actionFunction) {
-		currentNode = this.get('front');
+	forEachReachable: function(callback) {
+		var front = this.get('front');
+		var rear = this.get('rear');
+		var currentNode = front;
 
-		while(currentNode !== null) {
-			actionFunction(currentNode, this.get('front'), this.get('rear'));
-			currentNode = currentNode.next;
+		while (currentNode !== null) {
+			callback(currentNode, front, rear);
+			currentNode = currentNode.get('next');
 		}
 	},
 
-	forEachUnreachable: function(actionFunction) {
-		var index = 0;
+	forEachUnreachable: function(callback) {
+		var unreachableNodes = this.get('unreachableNodes');
 
-		var len = this.get('unreachableNodes').length;
-		var first = this.get('unreachableNodes').at(0);
-		var last = this.get('unreachableNodes').at(len - 1);
-
-		while(index < len) {
-			actionFunction(this.get('unreachableNodes').at(index), first, last);
-			index = index + 1;
+		for (var i = 0; i < unreachableNodes.length; i += 1) {
+			callback(unreachableNodes[i]);
 		}
 	},
 
