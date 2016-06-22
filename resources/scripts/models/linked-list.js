@@ -106,7 +106,6 @@ app.models.LinkedList = Backbone.Model.extend({
 		return this.get('unreachableNodes').get(id);
 	},
 
-	//Note: startNode is optional
 	updateNodeCollections: function (newNode, dstNode) {
 		this.get('reachableNodes').add(newNode);
 
@@ -151,6 +150,28 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 		else {
 			return this.get('rear');
+		}
+	},
+
+	forEachReachable: function(actionFunction) {
+		currentNode = this.get('front');
+
+		while(currentNode !== null) {
+			actionFunction(currentNode, this.get('front'), this.get('rear'));
+			currentNode = currentNode.next;
+		}
+	},
+
+	forEachUnreachable: function(actionFunction) {
+		var index = 0;
+
+		var len = this.get('unreachableNodes').length;
+		var first = this.get('unreachableNodes').at(0);
+		var last = this.get('unreachableNodes').at(len - 1);
+
+		while(index < len) {
+			actionFunction(this.get('unreachableNodes').at(index), first, last);
+			index = index + 1;
 		}
 	},
 
