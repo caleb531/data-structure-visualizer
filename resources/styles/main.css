@@ -1,6 +1,8 @@
 /* Page */
 
 body {
+	width: 800px;
+	margin: 0 auto;
 	font-family: 'Open Sans', sans-serif;
 	text-align: center;
 }
@@ -21,6 +23,7 @@ select {
 
 #paper-container svg {
 	border: solid 2px #000;
+	box-sizing: border-box;
 	user-select: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
