@@ -2,16 +2,10 @@
 (function ($, _, Backbone, Raphael, app) {
 
 app.views.LinkedList = Backbone.View.extend({
-	events: {
-		'mousedown .pointer-body': 'onPressSrc',
-		'mousedown .node-body': 'onPressDst',
-		'mousedown .null': 'onPressDst'
-	},
 	initialize: function () {
 		this.$el.empty();
 		this.paper = Raphael(this.el, 800, 400);
 		this.render();
-		this.setStep(0);
 	},
 	drawNodeText: function (node, x, y) {
 		var styles = this.constructor.styles;
@@ -167,39 +161,6 @@ app.views.LinkedList = Backbone.View.extend({
 			p = p.get('next');
 			x += dx;
 		}
-	},
-	setStep: function (stepNum) {
-		this.step = stepNum;
-		console.log('proceed to step ' + stepNum);
-		$(this.paper.canvas).removeClass().addClass('step-' + stepNum);
-	},
-	onPressSrc: function (event) {
-		var $pointer = $(event.target);
-		if (this.step === 1 && $pointer.hasClass('src-pointer')) {
-			// do something with this.model here
-			$pointer.removeClass('src-pointer');
-			this.setStep(0);
-		} else if (this.step === 0) {
-			// do something with this.model here
-			$pointer.addClass('src-pointer');
-			this.setStep(1);
-		} else if (this.step === 2) {
-			$pointer.removeClass('src-pointer');
-			$('.dst-node').removeClass('dst-node');
-			this.setStep(0);
-		}
-	},
-	onPressDst: function (event) {
-		var $node = $(event.target);
-		if (this.step === 2 && $node.hasClass('dst-node')) {
-			// do something with this.model here
-			$node.removeClass('dst-node');
-			this.setStep(1);
-		} else if (this.step === 1) {
-			// do something with this.model here
-			$node.addClass('dst-node');
-			this.setStep(2);
-		}
 	}
 }, {
 	styles: {
@@ -213,7 +174,25 @@ app.views.LinkedList = Backbone.View.extend({
 		nodeFontSize: 24,
 		pointerFontSize: 14,
 		pointerLabelPaddingY: 2
-	}
+	},
+	srcPointerOptions: [
+		{value: 'front', label: 'Front'},
+		{value: 'front-next', label: 'Front->Next'},
+		{value: 'rear', label: 'Rear'},
+		{value: 'rear-next', label: 'Rear->Next'},
+		{value: 'p', label: 'P'},
+		{value: 'p-next', label: 'P->Next'}
+	],
+	dstNodeOptions: [
+		{value: 'front', label: 'Front'},
+		{value: 'front-next', label: 'Front->Next'},
+		{value: 'rear', label: 'Rear'},
+		{value: 'rear-next', label: 'Rear->Next'},
+		{value: 'p', label: 'P'},
+		{value: 'p-next', label: 'P->Next'},
+		{value: 'new-node', label: 'new Node'},
+		{value: 'null', label: 'NULL'}
+	]
 });
 
 }(jQuery, window._, window.Backbone, window.Raphael, window.app));

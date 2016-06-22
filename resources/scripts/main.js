@@ -31,6 +31,8 @@ app.views.ControlContainer = Backbone.View.extend({
 			el: $('#paper-container')[0],
 			model: structureModel
 		});
+		this.setMenuOptions('.src-pointer-options', StructureView.srcPointerOptions);
+		this.setMenuOptions('.dst-node-options', StructureView.dstNodeOptions);
 	}
 }, {
 	structureList: [
