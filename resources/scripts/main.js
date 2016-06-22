@@ -2,10 +2,10 @@
 
 app.views.ControlContainer = Backbone.View.extend({
 	events: {
-		'change .data-structure': 'setDataStructure'
+		'change .data-structure-options': 'setDataStructure'
 	},
 	initialize: function () {
-		this.setMenuOptions('.data-structure',
+		this.setMenuOptions('.data-structure-options',
 			app.views.ControlContainer.structureList);
 		this.setDataStructure();
 	},
@@ -20,7 +20,7 @@ app.views.ControlContainer = Backbone.View.extend({
 		}
 	},
 	setDataStructure: function () {
-		var structureName = this.$el.find('.data-structure').val();
+		var structureName = this.$el.find('.data-structure-options').val();
 		// Variables pointing to constructors
 		var StructureModel = app.models[structureName];
 		var StructureView = app.views[structureName];
