@@ -140,27 +140,24 @@ app.views.LinkedList = Backbone.View.extend({
 		);
 	},
 	render: function () {
-		var front = this.model.get('front');
-		var rear = this.model.get('rear');
-		var p = front;
 		var styles = this.constructor.styles;
 		var x = styles.canvasPaddingX;
 		var y = styles.canvasPaddingY;
 		var dx = styles.nodeWidth +
 			styles.nodeSpace;
-		while (p !== null) {
-			this.drawNode(p, x, y);
-			if (p === front && p === rear) {
-				this.drawLabelPointer(p, x - styles.nodeWidth/3, y, 'front', 'Front');
-				this.drawLabelPointer(p, x + styles.nodeWidth/3, y, 'rear', 'Rear');
-			} else if (p === front) {
-				this.drawLabelPointer(p, x, y, 'front', 'Front');
-			} else if (p === rear) {
-				this.drawLabelPointer(p, x, y, 'rear', 'Rear');
+		var view = this;
+		this.model.forEachReachable(function (currentNode, front, rear) {
+			if (currentNode === front && currentNode === rear) {
+				view.drawLabelPointer(currentNode, x - styles.nodeWidth/3, y, 'front', 'Front');
+				view.drawLabelPointer(currentNode, x + styles.nodeWidth/3, y, 'rear', 'Rear');
+			} else if (currentNode === front) {
+				view.drawLabelPointer(currentNode, x, y, 'front', 'Front');
+			} else if (currentNode === rear) {
+				view.drawLabelPointer(currentNode, x, y, 'rear', 'Rear');
 			}
-			p = p.get('next');
+			view.drawNode(currentNode, x, y);
 			x += dx;
-		}
+		});
 	}
 }, {
 	styles: {
