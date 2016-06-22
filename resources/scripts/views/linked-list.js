@@ -183,6 +183,10 @@ app.views.LinkedList = Backbone.View.extend({
 			// do something with this.model here
 			$pointer.addClass('src-pointer');
 			this.setStep(1);
+		} else if (this.step === 2) {
+			$pointer.removeClass('src-pointer');
+			$('.dst-node').removeClass('dst-node');
+			this.setStep(0);
 		}
 	},
 	onPressDst: function (event) {
