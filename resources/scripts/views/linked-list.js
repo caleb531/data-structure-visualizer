@@ -7,6 +7,13 @@ app.views.LinkedList = Backbone.View.extend({
 		this.paper = Raphael(this.el, 800, 400);
 		this.render();
 	},
+	clearCanvas: function () {
+		$(this.paper.canvas)
+			.children()
+			.not('desc')
+			.not('defs')
+			.remove();
+	},
 	drawNodeText: function (node, x, y) {
 		var styles = this.constructor.styles;
 		this.paper.text(
@@ -140,6 +147,7 @@ app.views.LinkedList = Backbone.View.extend({
 		);
 	},
 	render: function () {
+		this.clearCanvas();
 		var styles = this.constructor.styles;
 		var x = styles.canvasPaddingX;
 		var y = styles.canvasPaddingY;
