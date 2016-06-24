@@ -2,6 +2,7 @@
 (function ($, _, Backbone, Raphael, app) {
 
 app.views.LinkedList = app.views.DataStructure.extend({
+	// Draw the text label containing the value for this particular node
 	drawNodeText: function (node, x, y) {
 		var styles = this.constructor.styles;
 		this.paper.text(
@@ -14,6 +15,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'node-elem'
 		);
 	},
+	// Draw the rectangular body of the node
 	drawNodeBody: function (node, x, y) {
 		var styles = this.constructor.styles;
 		this.paper.rect(
@@ -23,6 +25,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'node-body'
 		);
 	},
+	// Draw the arrow line that points to a node
 	drawNodePointerArrow: function (node, nextNode, x, y) {
 		var styles = this.constructor.styles;
 		this.paper.path([
@@ -38,6 +41,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'pointer-arrow'
 		);
 	},
+	// Draw the a node's "next" pointer, represented by a circle
 	drawNodePointerCircle: function (node, x, y) {
 		var styles = this.constructor.styles;
 		this.paper.circle(
@@ -48,6 +52,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'pointer-body'
 		);
 	},
+	// Draw null, represented as a square with an X inside
 	drawNull: function (node, x, y) {
 		var styles = this.constructor.styles;
 		this.paper.path([
@@ -80,6 +85,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'null'
 		);
 	},
+	// Draw the "next" pointer for a node (including arrow, circle, and null)
 	drawNodePointer: function (node, x, y) {
 		var nextNode = node.get('next');
 		var styles = this.constructor.styles;
@@ -93,6 +99,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			);
 		}
 	},
+	// Draw an entire node (body, text, and pointer)
 	drawNode: function (node, x, y) {
 		var group = this.paper.set();
 		var styles = this.constructor.styles;
@@ -100,6 +107,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		this.drawNodeText(node, x, y);
 		this.drawNodePointer(node, x, y);
 	},
+	// Draw a label pointer (e.g. for Front or Rear or P, including the text)
 	drawLabelPointer: function (node, x, y, labelId, labelName) {
 		var styles = this.constructor.styles;
 		var bodyWidth = (styles.nodeWidth / 2);
@@ -142,6 +150,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		var dx = styles.nodeWidth +
 			styles.nodeSpace;
 		var view = this;
+		// Draw list of reachable nodes by following pointer chain from Front
 		this.model.forEachReachable(function (currentNode, front, rear) {
 			if (currentNode === front && currentNode === rear) {
 				view.drawLabelPointer(currentNode, x - styles.nodeWidth/3, y, 'front', 'Front');
@@ -156,6 +165,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		});
 	}
 }, {
+	// Metrics used for calculating position, spacing, and sizing of nodes
 	styles: {
 		canvasPaddingX: 50,
 		canvasPaddingY: 80,
@@ -168,6 +178,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		pointerFontSize: 14,
 		pointerLabelPaddingY: 2
 	},
+	// Options to display for lvalue dropdown control on the left
 	srcPointerOptions: [
 		{value: 'front', label: 'Front'},
 		{value: 'front-next', label: 'Front->Next'},
@@ -176,6 +187,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		{value: 'p', label: 'P'},
 		{value: 'p-next', label: 'P->Next'}
 	],
+	// Options to display for rvalue dropdown control on the right
 	dstNodeOptions: [
 		{value: 'front', label: 'Front'},
 		{value: 'front-next', label: 'Front->Next'},
