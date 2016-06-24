@@ -41,7 +41,7 @@ app.views.ControlContainer = Backbone.View.extend({
 });
 
 var controlContainerView = new app.views.ControlContainer({
-	el: $('#controls')
+	el: $('#controls')[0]
 });
 
 }(jQuery, window._, window.Backbone, window.app));
