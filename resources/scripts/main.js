@@ -20,19 +20,19 @@ app.views.ControlContainer = Backbone.View.extend({
 		}
 	},
 	setDataStructure: function () {
-		var structureName = this.$el.find('.data-structure-options').val();
+		var dataStructureName = this.$el.find('.data-structure-options').val();
 		// Variables pointing to constructors
-		var StructureModel = app.models[structureName];
-		var StructureView = app.views[structureName];
+		var DataStructureModel = app.models[dataStructureName];
+		var DataStructureView = app.views[dataStructureName];
 		// Variables pointing to instances of the above constructors
-		var structureModel = new StructureModel();
-		structureModel.initializeExample();
-		var structureView = new StructureView({
+		var dataStructureModel = new DataStructureModel();
+		dataStructureModel.initializeExample();
+		var dataStructureView = new DataStructureView({
 			el: $('#paper-container')[0],
-			model: structureModel
+			model: dataStructureModel
 		});
-		this.setMenuOptions('.src-pointer-options', StructureView.srcPointerOptions);
-		this.setMenuOptions('.dst-node-options', StructureView.dstNodeOptions);
+		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
+		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
 	}
 }, {
 	structureList: [

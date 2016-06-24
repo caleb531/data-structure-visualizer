@@ -1,19 +1,7 @@
 /* jshint devel: true */
 (function ($, _, Backbone, Raphael, app) {
 
-app.views.LinkedList = Backbone.View.extend({
-	initialize: function () {
-		this.$el.empty();
-		this.paper = Raphael(this.el, 800, 400);
-		this.render();
-	},
-	clearCanvas: function () {
-		$(this.paper.canvas)
-			.children()
-			.not('desc')
-			.not('defs')
-			.remove();
-	},
+app.views.LinkedList = app.views.DataStructure.extend({
 	drawNodeText: function (node, x, y) {
 		var styles = this.constructor.styles;
 		this.paper.text(
