@@ -3,7 +3,7 @@
 app.views.DataStructure = Backbone.View.extend({
 	initialize: function () {
 		this.$el.empty();
-		this.paper = Raphael(this.el, 800, 400);
+		this.paper = Raphael(this.el, 800, 300);
 		this.render();
 	},
 	clearCanvas: function () {
