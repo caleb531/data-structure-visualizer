@@ -100,12 +100,20 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		}
 	},
 	// Draw an entire node (body, text, and pointer)
-	drawNode: function (node, x, y) {
+	drawReachableNode: function (node, x, y) {
 		var group = this.paper.set();
 		var styles = this.constructor.styles;
 		this.drawNodeBody(node, x, y);
 		this.drawNodeText(node, x, y);
 		this.drawNodePointer(node, x, y);
+	},
+	// Draw an entire unreachable node (body, text, but no pointer because it's
+	// not in a chain)
+	drawUnreachableNode: function (node, x, y) {
+		var group = this.paper.set();
+		var styles = this.constructor.styles;
+		this.drawNodeBody(node, x, y);
+		this.drawNodeText(node, x, y);
 	},
 	// Draw a label pointer (e.g. for Front or Rear or P, including the text)
 	drawLabelPointer: function (node, x, y, labelId, labelName) {
@@ -142,8 +150,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'pointer-arrow'
 		);
 	},
-	render: function () {
-		this.clearCanvas();
+	drawReachableNodes: function () {
 		var styles = this.constructor.styles;
 		var x = styles.canvasPaddingX;
 		var y = styles.canvasPaddingY;
@@ -161,9 +168,38 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			if (currentNode === p) {
 				view.drawLabelPointer(currentNode, x, y, 'p', 'P');
 			}
-			view.drawNode(currentNode, x, y);
+			view.drawReachableNode(currentNode, x, y);
 			x += dx;
 		});
+	},
+	drawUnreachableNodes: function () {
+		var styles = this.constructor.styles;
+		var x = styles.canvasPaddingX;
+		var y = this.paper.height - styles.canvasPaddingY;
+		var dx = styles.nodeWidth +
+			styles.nodeSpace;
+		var view = this;
+		console.log('trying');
+		// Draw list of unreachable nodes at bottom of canvas
+		this.model.forEachUnreachable(function (currentNode, front, rear, p) {
+			console.log(currentNode.get('elem'));
+			if (currentNode === front) {
+				view.drawLabelPointer(currentNode, x - styles.nodeWidth/3, y, 'front', 'F');
+			}
+			if (currentNode === rear) {
+				view.drawLabelPointer(currentNode, x + styles.nodeWidth/3, y, 'rear', 'R');
+			}
+			if (currentNode === p) {
+				view.drawLabelPointer(currentNode, x, y, 'p', 'P');
+			}
+			view.drawUnreachableNode(currentNode, x, y);
+			x += dx;
+		});
+	},
+	render: function () {
+		this.clearCanvas();
+		this.drawReachableNodes();
+		this.drawUnreachableNodes();
 	}
 }, {
 	// Metrics used for calculating position, spacing, and sizing of nodes

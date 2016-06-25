@@ -161,7 +161,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		var index = 0;
 
-		while(index < this.get('nodes').length) {
+		while (index < this.get('nodes').length) {
 			currentNode = this.get('nodes').at(index);
 
 			if (!seenNodes.hasOwnProperty(currentNode.get('id'))) {
@@ -174,6 +174,10 @@ app.models.LinkedList = Backbone.Model.extend({
 
 
 	initializeExample: function () {
+		var node4 = new app.models.LinkedListNode({
+			elem: 51,
+			id: 3
+		});
 		var node3 = new app.models.LinkedListNode({
 			elem: 99,
 			id: 2
@@ -193,11 +197,12 @@ app.models.LinkedList = Backbone.Model.extend({
 		nodes.add(node1);
 		nodes.add(node2);
 		nodes.add(node3);
+		nodes.add(node4);
 
 		this.set('nodes', nodes);
 		this.set('front', node1);
 		this.set('rear', node3);
-		this.set('p', this.get('front'));
+		this.set('p', node4);
 	}
 });
 
