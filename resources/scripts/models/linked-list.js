@@ -22,6 +22,13 @@ function NodeNotFoundException(id, message) {
 	}
 }
 
+function Assignment(srcNode, dstNode, isFront, isRear) {
+	this.srcNode = srcNode;
+	this.dstNode = dstNode;
+	this.isFront = isFront;
+	this.isRear = isRear;
+}
+
 app.models.LinkedListNode = Backbone.Model.extend({
 	defaults: {
 		next: null,
@@ -49,6 +56,7 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 	initialize: function () {
 		this.set('nodes', new NodeCollection());
+		this.set('assignments', []);
 	},
 
 
@@ -57,47 +65,51 @@ app.models.LinkedList = Backbone.Model.extend({
 		if(srcNodeId === dstNodeId)
 			return;
 
-		var dstNode = this.getDstNode(dstNodeId);
+		dstNode = this.getDstNode(dstNodeId);
+
+		//did we find the dstNode?
+		if(dstNode == undefined)
+			throw new NodeNotFoundException(dstNodeId);
+
+		//is the source valid? (ie: can be found)
+		if(!validSrcNode(srcNodeId))
+			throw new NodeNotFoundException(srcNodeId);
+
+		var startingNodeID;
 
 		if(srcNodeId === this.get('front').get('id')) {
 			this.set('front', dstNode);
+			startingNodeID = this.get('front').get('id');
+		}
+		else if(srcNodeId === this.get('rear').get('id')) {
+			this.set('rear', dstNode);
+			startingNodeID = this.get('rear').get('id');
+		}
+		else
+		{
+			srcNode = this.get('nodes').get(srcNodeId);
+			srcNode.set('next', dstNode);
 		}
 
-
-		var srcNode = this.getNode(srcNodeId);
-
-
-		//did we find both the src and the dst node?
-		if (srcNode === undefined) {
-			throw new NodeNotFoundException(srcNodeId);
+		//did we just introduce a cycle?
+		if(cycleDetected()) {
+			undo();
+			throw "Gah, no cycles! WHY YOU DO THIS??"; //yes, this is a debug message =)
 		}
-		if (dstNode === undefined) {
-			throw new NodeNotFoundException(dstNodeId);
-		}
-
-		//is there anything for us to do?
-		if (srcNode.next === dstNode) {
-			return; //nope
-		}
-
-		//will changing pointers result in nodes becoming unreachable?
-		//[hopefully this is quick enough procedure, otherwise I'll optimize
-		//it]
-		if (srcNode.next !== null) {
-			this.updateNodeCollections(srcNode.next, dstNode);
-		}
-
-		//apply the requested change of pointers
-		srcNode.next = dstNode;
 	},
 
 
-	getNode: function(id) {
-		var newNode;
+	getDstNode: function(id) {
+
 		//new Node?
-		if (id === newNodeID) {
-			newNode = new app.models.LinkedListNode();
+		if (id === constants.ids.newNode) {
+			var newNode = new app.models.LinkedListNode();
 			return newNode;
+		}
+
+		//null node?
+		if (id === constatnts.ids.nil) {
+			return null;
 		}
 
 		//front or rear?
@@ -105,68 +117,61 @@ app.models.LinkedList = Backbone.Model.extend({
 		if (front !== null && front.id === id) {
 			return front;
 		}
-
 		var rear = this.get('rear');
 		if (rear !== null && rear.id === id) {
 			return rear;
 		}
 
-		//is the requested node reachable?
-		var requestedNode = this.get('reachableNodes').get(id);
+		requestedNode = this.get('nodes').get(id);
 
-		if (requestedNode !== null && requestedNode !== undefined) {
+		if(requestedNode !== undefined && requestedNode !== null)
 			return requestedNode;
-		}
 
-		//maybe the requested node is an unreachable node?
-		return this.get('unreachableNodes').get(id);
+		return undefined;
 	},
 
-	updateNodeCollections: function (newNode, dstNode) {
-		this.get('reachableNodes').add(newNode);
+	validSrcNode: function(id) {
+		
+		//front or rear?
+		var front = this.get('front');
+		if (front !== null && front.id === id) {
+			return true;
+		}
+		var rear = this.get('rear');
+		if (rear !== null && rear.id === id) {
+			return true;
+		}
 
-		var newlyUnreachableNodes = this.sublist(newNode, dstNode);
+		requestedNode = this.get('nodes').get(id);
 
-		//remove these nodes from the reachable nodes list
-		this.get('reachableNodes').remove(newlyUnreachableNodes);
+		if(requestedNode !== null && requestedNode !== undefined)
+			return true;
 
-		//add these guys to the unreachable collection
-		this.get('unreachableNodes').add(newlyUnreachableNodes);
+		return false;
 	},
 
-	//both parameters are optional
-	sublist: function(startNode, endNode) {
-		//get out starting place
-		var start = this.getStartNode(startNode);
-		var end = this.getEndNode(endNode);
+	//Super simple implementation. This'll be as fast as a optimal solution, but it'll
+	///use up a wee bit of memory, whereas optimal solutions won't. 
+	//If memory becomes an issue, I can transition to a fancy version. But for now, I believe the
+	//ease of understanding this algorithm outweights the fact that I'll use a wee bit of memory.
+	cycleDetected: function() {
+		nodesWeHaveSeen = {};
+		currentNode = this.get('front');
 
-		var currentNode = start;
-		var results = [];
+		while(currentNode !== null) {
+			if(nodesWeHaveSeen.hasOwnProperty(currentNode.get('id')))
+				return true;
 
-		//Note: cycles are assumed to not be present for the purposes of this function
-		while (currentNode !== null && currentNode.id !== end.id) {
-			results.push(currentNode);
+			nodesWeHaveSeen[currentNode.get('id')] = true;
+			currentNode = currentNode.get('next');
 		}
 
-		return results;
+		return false;
 	},
 
-	getStartNode: function(startNode) {
-		if (startNode !== null && startNode !== undefined) {
-			return startNode;
-		}
-		else {
-			return this.get('front');
-		}
-	},
-
-	getEndNode: function(endNode) {
-		if (endNode !== null && endNode !== undefined) {
-			return endNode;
-		}
-		else {
-			return this.get('rear');
-		}
+	//TODO
+	undo: function() {
+		return;
 	},
 
 	forEachReachable: function(callback) {
@@ -180,11 +185,28 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 	},
 
-	forEachUnreachable: function(callback) {
-		var unreachableNodes = this.get('unreachableNodes');
+	//If performance becomes an issue, we can use caching to speed this method up.
 
-		for (var i = 0; i < unreachableNodes.length; i += 1) {
-			callback(unreachableNodes[i]);
+	forEachUnreachable: function(callback) {
+		var front = this.get('front');
+		var rear = this.get('rear');
+		var currentNode = front;
+		var seenNodes = {};
+
+		while (currentNode !== null) {
+			seenNodes[currentNode.get('id')] = true;
+			currentNode = currentNode.get('next');
+		}
+
+		var index = 0;
+
+		while(index < this.get('nodes').length) {
+			currentNode = this.get('nodes').at(index);
+
+			if(!seenNodes.hasOwnProperty(currentNode.get('id')))
+				callback(currentNode);
+
+			index = index + 1;
 		}
 	},
 
@@ -210,8 +232,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		nodes.add(node2);
 		nodes.add(node3);
 
-		this.set('reachableNodes', nodes);
-		this.set('unreachableNodes', new NodeCollection());
+		this.set('nodes', nodes);
 		this.set('front', node1);
 		this.set('rear', node3);
 	}
