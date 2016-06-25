@@ -110,7 +110,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	// Draw a label pointer (e.g. for Front or Rear or P, including the text)
 	drawLabelPointer: function (node, x, y, labelId, labelName) {
 		var styles = this.constructor.styles;
-		var bodyWidth = (styles.nodeWidth / 2);
+		var bodyWidth = (styles.nodeWidth / 4);
 		var bodyHeight = styles.pointerFontSize + (styles.pointerLabelPaddingY * 2);
 		this.paper.rect(
 			(x + styles.nodeWidth / 2) - (bodyWidth / 2),
@@ -151,14 +151,15 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			styles.nodeSpace;
 		var view = this;
 		// Draw list of reachable nodes by following pointer chain from Front
-		this.model.forEachReachable(function (currentNode, front, rear) {
-			if (currentNode === front && currentNode === rear) {
-				view.drawLabelPointer(currentNode, x - styles.nodeWidth/3, y, 'front', 'Front');
-				view.drawLabelPointer(currentNode, x + styles.nodeWidth/3, y, 'rear', 'Rear');
-			} else if (currentNode === front) {
-				view.drawLabelPointer(currentNode, x, y, 'front', 'Front');
-			} else if (currentNode === rear) {
-				view.drawLabelPointer(currentNode, x, y, 'rear', 'Rear');
+		this.model.forEachReachable(function (currentNode, front, rear, p) {
+			if (currentNode === front) {
+				view.drawLabelPointer(currentNode, x - styles.nodeWidth/3, y, 'front', 'F');
+			}
+			if (currentNode === rear) {
+				view.drawLabelPointer(currentNode, x + styles.nodeWidth/3, y, 'rear', 'R');
+			}
+			if (currentNode === p) {
+				view.drawLabelPointer(currentNode, x, y, 'p', 'P');
 			}
 			view.drawNode(currentNode, x, y);
 			x += dx;

@@ -141,7 +141,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		var currentNode = front;
 
 		while (currentNode !== null) {
-			callback(currentNode, front, rear);
+			callback(currentNode, front, rear, p);
 			currentNode = currentNode.get('next');
 		}
 	},
@@ -151,6 +151,7 @@ app.models.LinkedList = Backbone.Model.extend({
 	forEachUnreachable: function(callback) {
 		var front = this.get('front');
 		var rear = this.get('rear');
+		var p = this.get('p');
 		var currentNode = front;
 		var seenNodes = {};
 
@@ -165,7 +166,7 @@ app.models.LinkedList = Backbone.Model.extend({
 			currentNode = this.get('nodes').at(index);
 
 			if (!seenNodes.hasOwnProperty(currentNode.get('id'))) {
-				callback(currentNode, front, rear);
+				callback(currentNode, front, rear, p);
 			}
 
 			index = index + 1;
@@ -196,8 +197,8 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		this.set('nodes', nodes);
 		this.set('front', node1);
-		this.set('p', this.get('front'));
 		this.set('rear', node3);
+		this.set('p', this.get('front'));
 	}
 });
 
