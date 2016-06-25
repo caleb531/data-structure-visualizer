@@ -3,22 +3,25 @@
 app.views.ControlContainer = Backbone.View.extend({
 	events: {
 		'change .data-structure-options': 'setDataStructure',
-		'click .execute': 'executeAction'
+		'click .execute': 'executeAction',
+		'click .undo': 'undoAction'
 	},
 	initialize: function () {
 		this.setMenuOptions('.data-structure-options',
 			app.views.ControlContainer.structureList);
 		this.setDataStructure();
+		// stateStack saves the state of the data structure at each step
+		this.stateStack = [];
 	},
 	setMenuOptions: function (menuSelector, menuOptions) {
 		var $menu = this.$el.find(menuSelector);
 		$menu.empty();
-		for (var o = 0; o < menuOptions.length; o += 1) {
+		menuOptions.forEach(function (menuOption) {
 			$('<option>')
-				.prop({value: menuOptions[o].value})
-				.html(menuOptions[o].label)
+				.prop({value: menuOption.value})
+				.html(menuOption.label)
 				.appendTo($menu);
-		}
+		});
 	},
 	setDataStructure: function () {
 		var dataStructureName = this.$el.find('.data-structure-options').val();
@@ -41,8 +44,18 @@ app.views.ControlContainer = Backbone.View.extend({
 		var srcPointerId = this.$el.find('.src-pointer-options').val();
 		var dstNodeId = this.$el.find('.dst-node-options').val();
 		if (action === 'set') {
+			this.stateStack.push(this.dataStructureModel.getState());
 			this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
 			this.dataStructureView.render();
+		}
+	},
+	undoAction: function () {
+		var state = this.stateStack.pop();
+		if (state) {
+			this.dataStructureModel.setState(state);
+			this.dataStructureView.render();
+		} else {
+			window.alert('Nothing more to undo!');
 		}
 	}
 }, {

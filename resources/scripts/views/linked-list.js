@@ -179,7 +179,6 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		var dx = styles.nodeWidth +
 			styles.nodeSpace;
 		var view = this;
-		console.log('trying');
 		// Draw list of unreachable nodes at bottom of canvas
 		this.model.forEachUnreachable(function (currentNode, front, rear, p) {
 			console.log(currentNode.get('elem'));

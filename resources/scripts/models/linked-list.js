@@ -56,7 +56,6 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 	initialize: function () {
 		this.set('nodes', new NodeCollection());
-		this.set('assignments', []);
 	},
 
 
@@ -129,11 +128,6 @@ app.models.LinkedList = Backbone.Model.extend({
 		return false;
 	},
 
-	//TODO
-	undo: function() {
-		return;
-	},
-
 	forEachReachable: function(callback) {
 		var front = this.get('front');
 		var rear = this.get('rear');
@@ -173,6 +167,67 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 	},
 
+	// Return the ID of the given node (or null of node is null)
+	getNodeId: function (node) {
+		if (node === null) {
+			return null;
+		} else {
+			return node.get('id');
+		}
+	},
+
+	// Return a serialized object representing the state of the list
+	getState: function () {
+		var state = {
+			front: this.getNodeId(this.get('front')),
+			rear: this.getNodeId(this.get('rear')),
+			p: this.getNodeId(this.get('p')),
+			nodes: []
+		};
+		var nodes = this.get('nodes');
+		var view = this;
+		nodes.forEach(function (node) {
+			state.nodes.push({
+				id: node.get('id'),
+				elem: node.get('elem'),
+				next: view.getNodeId(node.get('next'))
+			});
+		});
+		return state;
+	},
+
+	setState: function (state) {
+		var nodes = this.get('nodes');
+		// Empty the node collection before pushing new nodes
+		nodes.reset([]);
+		var view = this;
+		// Initially add all nodes with their IDs and element values
+		state.nodes.forEach(function (nodeState) {
+			var node = new app.models.LinkedListNode({
+				id: nodeState.id,
+				elem: nodeState.elem,
+				// Use ID of next node; convert to pointer in next loop
+				next: nodeState.next
+			});
+			if (nodeState.id === state.front) {
+				view.set('front', node);
+			}
+			if (nodeState.id === state.rear) {
+				view.set('rear', node);
+			}
+			if (nodeState.id === state.p) {
+				view.set('p', node);
+			}
+			nodes.add(node);
+		});
+		// Now that all nodes exist, convert next IDs to next pointers
+		nodes.forEach(function (node) {
+			var nextId = node.get('next');
+			if (nextId !== null) {
+				node.set('next', nodes.get(nextId));
+			}
+		});
+	},
 
 	initializeExample: function () {
 		var node4 = new app.models.LinkedListNode({

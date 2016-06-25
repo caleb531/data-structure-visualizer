@@ -26,10 +26,11 @@ h1, h2, h3 {
 	margin: 0 auto;
 	margin-bottom: 10px;
 }
-#controls .execute {
-	display: block;
-	margin: 0 auto;
+#controls .buttons {
 	margin-top: 10px;
+}
+#controls button {
+	margin: 0 5px;
 }
 
 #paper-container svg {
