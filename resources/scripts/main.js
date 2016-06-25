@@ -2,7 +2,8 @@
 
 app.views.ControlContainer = Backbone.View.extend({
 	events: {
-		'change .data-structure-options': 'setDataStructure'
+		'change .data-structure-options': 'setDataStructure',
+		'click .execute': 'executeAction'
 	},
 	initialize: function () {
 		this.setMenuOptions('.data-structure-options',
@@ -25,16 +26,27 @@ app.views.ControlContainer = Backbone.View.extend({
 		var DataStructureModel = app.models[dataStructureName];
 		var DataStructureView = app.views[dataStructureName];
 		// Variables pointing to instances of the above constructors
-		var dataStructureModel = new DataStructureModel();
-		dataStructureModel.initializeExample();
-		var dataStructureView = new DataStructureView({
+		this.dataStructureModel = new DataStructureModel();
+		this.dataStructureModel.initializeExample();
+		this.dataStructureView = new DataStructureView({
 			el: $('#paper-container')[0],
-			model: dataStructureModel
+			model: this.dataStructureModel
 		});
+		// Update dropdown menus with values specific to chosen data structure
 		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
 		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
+	},
+	executeAction: function () {
+		var action = this.$el.find('.action-options').val();
+		var srcPointerId = this.$el.find('.src-pointer-options').val();
+		var dstNodeId = this.$el.find('.dst-node-options').val();
+		if (action === 'set') {
+			this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
+			this.dataStructureView.render();
+		}
 	}
 }, {
+	// Options to display in list of available data structures in UI
 	structureList: [
 		{value: 'LinkedList', label: 'Linked List'}
 	]

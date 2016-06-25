@@ -52,7 +52,7 @@ app.models.LinkedList = Backbone.Model.extend({
 	defaults: {
 		front: null,
 		rear: null,
-
+		p: null
 	},
 	initialize: function () {
 		this.set('nodes', new NodeCollection());
@@ -60,107 +60,67 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 
 
-	setPointer: function (srcNodeId, dstNodeId) {
+	setPointer: function (srcPointerId, dstNodeId) {
 
-		if(srcNodeId === dstNodeId)
+		if (srcPointerId === dstNodeId) {
 			return;
-
-		dstNode = this.getDstNode(dstNodeId);
-
-		//did we find the dstNode?
-		if(dstNode == undefined)
-			throw new NodeNotFoundException(dstNodeId);
-
-		//is the source valid? (ie: can be found)
-		if(!validSrcNode(srcNodeId))
-			throw new NodeNotFoundException(srcNodeId);
-
-		var startingNodeID;
-
-		if(srcNodeId === this.get('front').get('id')) {
-			this.set('front', dstNode);
-			startingNodeID = this.get('front').get('id');
 		}
-		else if(srcNodeId === this.get('rear').get('id')) {
-			this.set('rear', dstNode);
-			startingNodeID = this.get('rear').get('id');
-		}
-		else
-		{
-			srcNode = this.get('nodes').get(srcNodeId);
-			srcNode.set('next', dstNode);
+
+		var dstNode = this.getDstNode(dstNodeId);
+
+		if (srcPointerId.indexOf('-next') !== -1) {
+			var node = this.get(srcPointerId.replace('-next', ''));
+			if (node) {
+				node.set('next', dstNode);
+			}
+		} else {
+			this.set(srcPointerId, dstNode);
 		}
 
 		//did we just introduce a cycle?
-		if(cycleDetected()) {
-			undo();
-			throw "Gah, no cycles! WHY YOU DO THIS??"; //yes, this is a debug message =)
+		if (this.cycleDetected()) {
+			this.undo();
+			// throw 'Gah, no cycles! WHY YOU DO THIS??'; //yes, this is a debug message =)
 		}
 	},
 
 
-	getDstNode: function(id) {
+	getDstNode: function(dstNodeId) {
 
-		//new Node?
-		if (id === constants.ids.newNode) {
-			var newNode = new app.models.LinkedListNode();
-			return newNode;
-		}
-
-		//null node?
-		if (id === constatnts.ids.nil) {
+		if (dstNodeId === 'null') {
 			return null;
+		} else if (dstNodeId === 'new-node') {
+			return new app.models.LinkedListNode({
+				elem: window.prompt('Enter a new value for this node')
+			});
+		} else {
+			// Handle case where Front, Rear, P, or *->Next is set as dst
+			if (dstNodeId.indexOf('-next') !== -1) {
+				var node = this.get(dstNodeId.replace('-next', ''));
+				if (node) {
+					return node.get('next');
+				} else {
+					return null;
+				}
+			} else {
+				return this.get(dstNodeId);
+			}
 		}
 
-		//front or rear?
-		var front = this.get('front');
-		if (front !== null && front.id === id) {
-			return front;
-		}
-		var rear = this.get('rear');
-		if (rear !== null && rear.id === id) {
-			return rear;
-		}
-
-		requestedNode = this.get('nodes').get(id);
-
-		if(requestedNode !== undefined && requestedNode !== null)
-			return requestedNode;
-
-		return undefined;
-	},
-
-	validSrcNode: function(id) {
-		
-		//front or rear?
-		var front = this.get('front');
-		if (front !== null && front.id === id) {
-			return true;
-		}
-		var rear = this.get('rear');
-		if (rear !== null && rear.id === id) {
-			return true;
-		}
-
-		requestedNode = this.get('nodes').get(id);
-
-		if(requestedNode !== null && requestedNode !== undefined)
-			return true;
-
-		return false;
 	},
 
 	//Super simple implementation. This'll be as fast as a optimal solution, but it'll
-	///use up a wee bit of memory, whereas optimal solutions won't. 
+	///use up a wee bit of memory, whereas optimal solutions won't.
 	//If memory becomes an issue, I can transition to a fancy version. But for now, I believe the
 	//ease of understanding this algorithm outweights the fact that I'll use a wee bit of memory.
 	cycleDetected: function() {
-		nodesWeHaveSeen = {};
-		currentNode = this.get('front');
+		var nodesWeHaveSeen = {};
+		var currentNode = this.get('front');
 
-		while(currentNode !== null) {
-			if(nodesWeHaveSeen.hasOwnProperty(currentNode.get('id')))
+		while (currentNode !== null) {
+			if (nodesWeHaveSeen.hasOwnProperty(currentNode.get('id'))) {
 				return true;
+			}
 
 			nodesWeHaveSeen[currentNode.get('id')] = true;
 			currentNode = currentNode.get('next');
@@ -177,6 +137,7 @@ app.models.LinkedList = Backbone.Model.extend({
 	forEachReachable: function(callback) {
 		var front = this.get('front');
 		var rear = this.get('rear');
+		var p = this.get('p');
 		var currentNode = front;
 
 		while (currentNode !== null) {
@@ -203,8 +164,9 @@ app.models.LinkedList = Backbone.Model.extend({
 		while(index < this.get('nodes').length) {
 			currentNode = this.get('nodes').at(index);
 
-			if(!seenNodes.hasOwnProperty(currentNode.get('id')))
-				callback(currentNode);
+			if (!seenNodes.hasOwnProperty(currentNode.get('id'))) {
+				callback(currentNode, front, rear);
+			}
 
 			index = index + 1;
 		}
@@ -234,6 +196,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		this.set('nodes', nodes);
 		this.set('front', node1);
+		this.set('p', this.get('front'));
 		this.set('rear', node3);
 	}
 });
