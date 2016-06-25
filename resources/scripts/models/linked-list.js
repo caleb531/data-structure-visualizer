@@ -1,9 +1,15 @@
 (function ($, _, Backbone, app) {
 
-var idGenerator = 0;
-//ids < 0 are reserved!
-//Note: id = -1 means a new node.
-var newNodeID = -1;
+var idGenerator = 1;
+
+var constants = {
+
+	//Note: ids <= 0 are reserved
+	ids: {
+		nil: -1,
+		newNode: 0
+	}
+};
 
 
 
@@ -42,14 +48,24 @@ app.models.LinkedList = Backbone.Model.extend({
 
 	},
 	initialize: function () {
-		this.set('reachableNodes', new NodeCollection());
-		this.set('unreachableNodes', new NodeCollection());
+		this.set('nodes', new NodeCollection());
 	},
 
 
 	setPointer: function (srcNodeId, dstNodeId) {
+
+		if(srcNodeId === dstNodeId)
+			return;
+
+		var dstNode = this.getDstNode(dstNodeId);
+
+		if(srcNodeId === this.get('front').get('id')) {
+			this.set('front', dstNode);
+		}
+
+
 		var srcNode = this.getNode(srcNodeId);
-		var dstNode = this.getNode(dstNodeId);
+
 
 		//did we find both the src and the dst node?
 		if (srcNode === undefined) {
