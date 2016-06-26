@@ -230,35 +230,33 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 
 	initializeExample: function () {
-		var node4 = new app.models.LinkedListNode({
-			elem: 51,
-			id: 3
+		this.setState({
+			front: 0,
+			rear: 2,
+			p: 3,
+			nodes: [
+				{
+					id: 0,
+					elem: 24,
+					next: 1
+				},
+				{
+					id: 1,
+					elem: 42,
+					next: 2
+				},
+				{
+					id: 2,
+					elem: 99,
+					next: null
+				},
+				{
+					id: 3,
+					elem: 51,
+					next: null
+				},
+			]
 		});
-		var node3 = new app.models.LinkedListNode({
-			elem: 99,
-			id: 2
-		});
-		var node2 = new app.models.LinkedListNode({
-			elem: 42,
-			next: node3,
-			id: 1
-		});
-		var node1 = new app.models.LinkedListNode({
-			elem: 24,
-			next: node2,
-			id: 0
-		});
-
-		var nodes = new NodeCollection();
-		nodes.add(node1);
-		nodes.add(node2);
-		nodes.add(node3);
-		nodes.add(node4);
-
-		this.set('nodes', nodes);
-		this.set('front', node1);
-		this.set('rear', node3);
-		this.set('p', node4);
 	}
 });
 
