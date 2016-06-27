@@ -56,6 +56,11 @@ h1, h2, h3 {
 	fill: #fff;
 }
 
+/* The elem value of a reachable node pointed to by an unreachable node */
+.pointer-elem {
+	font-weight: bold;
+}
+
 text,
 tspan {
 	pointer-events: none;
