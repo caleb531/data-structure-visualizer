@@ -203,7 +203,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		});
 	},
 	render: function () {
-		this.clearCanvas();
+		this.paper.clear();
 		this.drawReachableNodes();
 		this.drawUnreachableNodes();
 	}

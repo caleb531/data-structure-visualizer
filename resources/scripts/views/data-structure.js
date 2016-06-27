@@ -6,14 +6,6 @@ app.views.DataStructure = Backbone.View.extend({
 		this.paper = Raphael(this.el, 800, 300);
 		this.render();
 	},
-	clearCanvas: function () {
-		$(this.paper.canvas)
-			.children()
-			// Don't remove elements used by Raphael
-			.not('desc')
-			.not('defs')
-			.remove();
-	}
 });
 
 }(jQuery, window._, window.Backbone, window.Raphael, window.app));
