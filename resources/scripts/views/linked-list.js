@@ -30,11 +30,11 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		var styles = this.constructor.styles;
 		this.paper.path([
 			'M',
-			(x + styles.nodeWidth),
-			(y + styles.nodeHeight / 2),
+			x + styles.nodeWidth,
+			y + styles.nodeHeight / 2,
 			'L',
-			(x + styles.nodeWidth + styles.nodeSpace - styles.pointerSpaceEnd),
-			(y + styles.nodeHeight / 2)
+			x + styles.nodeWidth + styles.nodeSpace - styles.pointerSpaceEnd,
+			y + styles.nodeHeight / 2
 		]).attr({
 			'arrow-end': 'block-wide-long'
 		}).node.setAttribute(
@@ -56,8 +56,8 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	drawUnreachableNodePointerText: function (node, nextNode, x, y) {
 		var styles = this.constructor.styles;
 		this.paper.text(
-			(x + styles.nodeWidth),
-			(y + styles.nodeHeight / 2),
+			x + styles.nodeWidth,
+			y + styles.nodeHeight / 2,
 			nextNode.get('elem')
 		).attr({
 			'font-size': styles.nodePointerRadius
@@ -70,17 +70,17 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		var styles = this.constructor.styles;
 		this.paper.path([
 			'M',
-			(x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
+			x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2),
+			y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2),
 			'L',
-			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2)),
+			x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2),
+			y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2),
 			'M',
-			(x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2)),
+			x + styles.nodeWidth - (styles.nodePointerRadius / Math.SQRT2),
+			y + styles.nodeHeight / 2 - (styles.nodePointerRadius / Math.SQRT2),
 			'L',
-			(x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2)),
-			(y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2)),
+			x + styles.nodeWidth + (styles.nodePointerRadius / Math.SQRT2),
+			y + styles.nodeHeight / 2 + (styles.nodePointerRadius / Math.SQRT2),
 		]).node.setAttribute(
 			'class', 'null'
 		);
@@ -127,16 +127,16 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		var bodyWidth = (styles.nodeWidth / 4);
 		var bodyHeight = styles.pointerFontSize + (styles.pointerLabelPaddingY * 2);
 		this.paper.rect(
-			(x + styles.nodeWidth / 2) - (bodyWidth / 2),
-			(y - styles.nodeSpace + (styles.pointerFontSize / 2)) - (bodyHeight / 2),
+			x + (styles.nodeWidth / 2) - (bodyWidth / 2),
+			y - styles.nodeSpace + (styles.pointerFontSize / 2) - (bodyHeight / 2),
 			bodyWidth,
 			bodyHeight
 		).node.setAttribute(
 			'class', 'pointer-body'
 		);
 		this.paper.text(
-			(x + styles.nodeWidth / 2),
-			(y - styles.nodeSpace + (styles.pointerFontSize / 2)),
+			x + styles.nodeWidth / 2,
+			y - styles.nodeSpace + (styles.pointerFontSize / 2),
 			labelName
 		).attr({
 			'font-size': styles.pointerFontSize
@@ -145,11 +145,11 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		);
 		this.paper.path([
 			'M',
-			(x + styles.nodeWidth / 2),
-			(y - styles.nodeSpace + (styles.pointerSpaceEnd * 2)),
+			x + styles.nodeWidth / 2,
+			y - styles.nodeSpace + (styles.pointerSpaceEnd * 2),
 			'L',
-			(x + styles.nodeWidth / 2),
-			(y - styles.pointerSpaceEnd)
+			x + styles.nodeWidth / 2,
+			y - styles.pointerSpaceEnd
 		]).attr({
 			'arrow-end': 'block-wide-long'
 		}).node.setAttribute(
