@@ -7,7 +7,7 @@ app.views.DataStructure = Backbone.View.extend({
 		this.render();
 		// Allow user to pan canvas
 		this.$el.panzoom({
-			disableZoom: false
+			disableZoom: true
 		});
 		var panzoom = this.$el.panzoom('instance');
 		panzoom.$elem = this.$el.children('svg');
