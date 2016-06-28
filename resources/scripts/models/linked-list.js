@@ -7,14 +7,14 @@ app.models.LinkedListNode = Backbone.Model.extend({
 		elem: null,
 		id : null
 	},
-
+	idAttribute: 'elem',
 	initiailize: function (elem) {
 		this.set('elem', elem);
 	}
 });
 
 var NodeCollection = Backbone.Collection.extend({
-	model: app.models.LinkedListNode
+	model: app.models.LinkedListNode,
 });
 
 app.models.LinkedList = Backbone.Model.extend({
@@ -62,7 +62,6 @@ app.models.LinkedList = Backbone.Model.extend({
 				elem: window.prompt('Enter a new value for this node')
 			});
 
-			newNode.set('id', newNode.elem);
 			this.get('nodes').add(newNode);
 			return newNode;
 
@@ -91,11 +90,11 @@ app.models.LinkedList = Backbone.Model.extend({
 		var currentNode = this.get('front');
 
 		while (currentNode !== null) {
-			if (nodesWeHaveSeen.hasOwnProperty(currentNode.get('id'))) {
+			if (nodesWeHaveSeen.hasOwnProperty(currentNode.get('elem'))) {
 				return true;
 			}
 
-			nodesWeHaveSeen[currentNode.get('id')] = true;
+			nodesWeHaveSeen[currentNode.get('elem')] = true;
 			currentNode = currentNode.get('next');
 		}
 
@@ -171,7 +170,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		var seenNodes = {};
 
 		while (currentNode !== null) {
-			seenNodes[currentNode.get('id')] = true;
+			seenNodes[currentNode.get('elem')] = true;
 			currentNode = currentNode.get('next');
 		}
 
@@ -180,7 +179,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		while (index < this.get('nodes').length) {
 			currentNode = this.get('nodes').at(index);
 
-			if (!seenNodes.hasOwnProperty(currentNode.get('id'))) {
+			if (!seenNodes.hasOwnProperty(currentNode.get('elem'))) {
 				callback(currentNode, front, rear, p);
 			}
 
@@ -189,29 +188,28 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 
 	// Return the ID of the given node (or null of node is null)
-	getNodeId: function (node) {
+	getNodeElem: function (node) {
 		if (node === null) {
 			return null;
 		} else {
-			return node.get('id');
+			return node.get('elem');
 		}
 	},
 
 	// Return a serialized object representing the state of the list
 	getState: function () {
 		var state = {
-			front: this.getNodeId(this.get('front')),
-			rear: this.getNodeId(this.get('rear')),
-			p: this.getNodeId(this.get('p')),
+			front: this.getNodeElem(this.get('front')),
+			rear: this.getNodeElem(this.get('rear')),
+			p: this.getNodeElem(this.get('p')),
 			nodes: []
 		};
 		var nodes = this.get('nodes');
 		var view = this;
 		nodes.forEach(function (node) {
 			state.nodes.push({
-				id: node.get('id'),
 				elem: node.get('elem'),
-				next: view.getNodeId(node.get('next'))
+				next: view.getNodeElem(node.get('next'))
 			});
 		});
 		return state;
@@ -225,54 +223,49 @@ app.models.LinkedList = Backbone.Model.extend({
 		// Initially add all nodes with their IDs and element values
 		state.nodes.forEach(function (nodeState) {
 			var node = new app.models.LinkedListNode({
-				id: nodeState.id,
 				elem: nodeState.elem,
 				// Use ID of next node; convert to pointer in next loop
 				next: nodeState.next
 			});
-			if (nodeState.id === state.front) {
+			if (nodeState.elem === state.front) {
 				view.set('front', node);
 			}
-			if (nodeState.id === state.rear) {
+			if (nodeState.elem === state.rear) {
 				view.set('rear', node);
 			}
-			if (nodeState.id === state.p) {
+			if (nodeState.elem === state.p) {
 				view.set('p', node);
 			}
 			nodes.add(node);
 		});
 		// Now that all nodes exist, convert next IDs to next pointers
 		nodes.forEach(function (node) {
-			var nextId = node.get('next');
-			if (nextId !== null) {
-				node.set('next', nodes.get(nextId));
+			var nextElem = node.get('next');
+			if (nextElem !== null) {
+				node.set('next', nodes.get(nextElem));
 			}
 		});
 	},
 
 	initializeExample: function () {
 		this.setState({
-			front: 0,
-			rear: 2,
-			p: 3,
+			front: 24,
+			rear: 99,
+			p: 51,
 			nodes: [
 				{
-					id: 0,
 					elem: 24,
-					next: 1
+					next: 42
 				},
 				{
-					id: 1,
 					elem: 42,
-					next: 2
+					next: 99
 				},
 				{
-					id: 2,
 					elem: 99,
 					next: null
 				},
 				{
-					id: 3,
 					elem: 51,
 					next: null
 				},
