@@ -4,6 +4,7 @@ app.views.ControlContainer = Backbone.View.extend({
 	events: {
 		'change .data-structure-options': 'setDataStructure',
 		'click .execute': 'executeAction',
+		'change .action-options': 'changeAction',
 		'click .undo': 'undoAction'
 	},
 	initialize: function () {
@@ -39,6 +40,13 @@ app.views.ControlContainer = Backbone.View.extend({
 		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
 		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
 	},
+	changeAction: function () {
+		// Disable source pointer dropdown if delete is selected
+		var action = this.$el.find('.action-options').val();
+		this.$el
+			.find('.src-pointer-options')
+			.prop('disabled', (action === 'delete'));
+	},
 	executeAction: function () {
 		var action = this.$el.find('.action-options').val();
 		var srcPointerId = this.$el.find('.src-pointer-options').val();
@@ -47,9 +55,8 @@ app.views.ControlContainer = Backbone.View.extend({
 			this.stateStack.push(this.dataStructureModel.getState());
 			this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
 			this.dataStructureView.render();
-		}
-		else if(action === 'delete') {
-			this.dataStructureModel.delete(dstNodeId);
+		} else if (action === 'delete') {
+			this.dataStructureModel.deleteNode(dstNodeId);
 			this.dataStructureView.render();
 		}
 	},

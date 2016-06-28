@@ -62,7 +62,7 @@ app.models.LinkedList = Backbone.Model.extend({
 				elem: window.prompt('Enter a new value for this node')
 			});
 
-			newNode.set('id', newNode.elem)
+			newNode.set('id', newNode.elem);
 			this.get('nodes').add(newNode);
 			return newNode;
 
@@ -131,23 +131,23 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 	},
 
-	delete: function(menuOption) {
+	deleteNode: function(menuOption) {
 		menuOption = menuOption.toLowerCase();
 
-		if (menuOption === 'null' || menuOption === 'new node')
+		if (menuOption === 'null' || menuOption === 'new-node') {
 			return;
+		}
 
 		//front, rear, or p
 		if (menuOption.indexOf('-next') === -1) {
 			this.removePropertyNode(menuOption);
-		}
-		else { //front->next, rear->next, or p->next
+		} else { //front->next, rear->next, or p->next
 			this.removePropertyNextNode(menuOption);
 		}
 
 
 	},
-	
+
 
 	forEachReachable: function(callback) {
 		var front = this.get('front');
