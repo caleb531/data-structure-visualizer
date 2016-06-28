@@ -1,33 +1,5 @@
 (function ($, _, Backbone, app) {
 
-var idGenerator = 1;
-
-var constants = {
-
-	//Note: ids <= 0 are reserved
-	ids: {
-		nil: -1,
-		newNode: 0
-	}
-};
-
-
-
-function NodeNotFoundException(id, message) {
-	this.id = id;
-	this.message = '';
-
-	if (message !== null) {
-		this.message = message;
-	}
-}
-
-function Assignment(srcNode, dstNode, isFront, isRear) {
-	this.srcNode = srcNode;
-	this.dstNode = dstNode;
-	this.isFront = isFront;
-	this.isRear = isRear;
-}
 
 app.models.LinkedListNode = Backbone.Model.extend({
 	defaults: {
@@ -38,9 +10,6 @@ app.models.LinkedListNode = Backbone.Model.extend({
 
 	initiailize: function (elem) {
 		this.set('elem', elem);
-		this.set('id', idGenerator);
-
-		idGenerator = idGenerator + 1;
 	}
 });
 
@@ -89,9 +58,14 @@ app.models.LinkedList = Backbone.Model.extend({
 		if (dstNodeId === 'null') {
 			return null;
 		} else if (dstNodeId === 'new-node') {
-			return new app.models.LinkedListNode({
+			var newNode = new app.models.LinkedListNode({
 				elem: window.prompt('Enter a new value for this node')
 			});
+
+			newNode.set('id', newNode.elem)
+			this.get('nodes').add(newNode);
+			return newNode;
+
 		} else {
 			// Handle case where Front, Rear, P, or *->Next is set as dst
 			if (dstNodeId.indexOf('-next') !== -1) {
@@ -126,6 +100,41 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 
 		return false;
+	},
+
+	deleteNode: function(menuOption) {
+		menuOption = menuOption.toLowerCase();
+
+		//front, rear, or p
+		if (menuOption.indexOf('-next') !== -1)
+			setPropertyNodeToNull(menuOption);
+		else //front->next, rear->next, or p->next
+			setPropertyNextNodeToNull(menuOption);
+	},
+
+	setPropertyNodeToNull: function(menuOption) {
+		var propertyName = getPropertyNameFromMenuOption(menuOption);
+		var node = this.get(propertyName);
+
+		if(node !== null)
+			this.set(propertyName, null);
+	},
+
+	setPropertyNextNodeToNull: function(menuOption) {
+		var propertyName = getPropertyNameFromMenuOption(menuOption);
+		var node = this.get(propertyName);
+
+		if(node !== null && node.get('next') !== null)
+			node.set('next', null);
+	},
+
+	getPropertyNameFromMenuOption: function(menuOption) {
+		if (menuOption.indexOf('-next') !== -1) {
+			return menuOption.replace('-next', '');
+		}
+		else {
+			return menuOption;
+		}
 	},
 
 	forEachReachable: function(callback) {

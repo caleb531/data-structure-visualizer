@@ -48,6 +48,10 @@ app.views.ControlContainer = Backbone.View.extend({
 			this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
 			this.dataStructureView.render();
 		}
+		else if(action === 'delete') {
+			this.dataStructureModel.delete(dstNodeId);
+			this.dataStructureView.render();
+		}
 	},
 	undoAction: function () {
 		var state = this.stateStack.pop();
