@@ -51,8 +51,8 @@ app.views.ControlContainer = Backbone.View.extend({
 		var action = this.$el.find('.action-options').val();
 		var srcPointerId = this.$el.find('.src-pointer-options').val();
 		var dstNodeId = this.$el.find('.dst-node-options').val();
+		this.stateStack.push(this.dataStructureModel.getState());
 		if (action === 'set') {
-			this.stateStack.push(this.dataStructureModel.getState());
 			this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
 			this.dataStructureView.render();
 		} else if (action === 'delete') {
