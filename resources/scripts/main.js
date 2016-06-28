@@ -32,7 +32,7 @@ app.views.ControlContainer = Backbone.View.extend({
 		this.dataStructureModel = new DataStructureModel();
 		this.dataStructureModel.initializeExample();
 		this.dataStructureView = new DataStructureView({
-			el: $('#paper-container')[0],
+			el: $('#canvas-container')[0],
 			model: this.dataStructureModel
 		});
 		// Update dropdown menus with values specific to chosen data structure

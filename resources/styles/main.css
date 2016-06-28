@@ -33,7 +33,7 @@ h1, h2, h3 {
 	margin: 0 5px;
 }
 
-#paper-container {
+#canvas-container {
 	width: 100%;
 	border: solid 2px #000;
 	box-sizing: border-box;
@@ -43,7 +43,7 @@ h1, h2, h3 {
 	font-size: 0;
 	overflow: hidden;
 }
-#paper-container svg {
+#canvas-container svg {
 	/* Raphael will try to override this; be assertive! */
 	overflow: visible !important;
 }
