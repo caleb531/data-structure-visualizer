@@ -1,5 +1,4 @@
-/* jshint devel: true */
-(function ($, _, Backbone, Raphael, app) {
+(function () {
 
 app.views.LinkedList = app.views.DataStructure.extend({
 	// Draw the text label containing the value for this particular node
@@ -243,4 +242,4 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	]
 });
 
-}(jQuery, window._, window.Backbone, window.Raphael, window.app));
+}());

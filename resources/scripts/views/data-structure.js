@@ -1,4 +1,4 @@
-(function ($, _, Backbone, Raphael, app) {
+(function () {
 
 app.views.DataStructure = Backbone.View.extend({
 	initialize: function () {
@@ -15,4 +15,4 @@ app.views.DataStructure = Backbone.View.extend({
 	},
 });
 
-}(jQuery, window._, window.Backbone, window.Raphael, window.app));
+}());

@@ -1,4 +1,4 @@
-(function ($, _, Backbone, app) {
+(function () {
 
 
 app.models.LinkedListNode = Backbone.Model.extend({
@@ -274,4 +274,4 @@ app.models.LinkedList = Backbone.Model.extend({
 	}
 });
 
-}(jQuery, window._, window.Backbone, window.app));
+}());

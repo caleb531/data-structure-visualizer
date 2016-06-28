@@ -1,4 +1,4 @@
-(function ($, _, Backbone, app) {
+(function () {
 
 app.views.ControlContainer = Backbone.View.extend({
 	events: {
@@ -80,4 +80,4 @@ var controlContainerView = new app.views.ControlContainer({
 	el: $('#controls')[0]
 });
 
-}(jQuery, window._, window.Backbone, window.app));
+}());
