@@ -102,32 +102,6 @@ app.models.LinkedList = Backbone.Model.extend({
 		return false;
 	},
 
-	deleteNode: function(menuOption) {
-		menuOption = menuOption.toLowerCase();
-
-		//front, rear, or p
-		if (menuOption.indexOf('-next') !== -1)
-			setPropertyNodeToNull(menuOption);
-		else //front->next, rear->next, or p->next
-			setPropertyNextNodeToNull(menuOption);
-	},
-
-	setPropertyNodeToNull: function(menuOption) {
-		var propertyName = getPropertyNameFromMenuOption(menuOption);
-		var node = this.get(propertyName);
-
-		if(node !== null)
-			this.set(propertyName, null);
-	},
-
-	setPropertyNextNodeToNull: function(menuOption) {
-		var propertyName = getPropertyNameFromMenuOption(menuOption);
-		var node = this.get(propertyName);
-
-		if(node !== null && node.get('next') !== null)
-			node.set('next', null);
-	},
-
 	getPropertyNameFromMenuOption: function(menuOption) {
 		if (menuOption.indexOf('-next') !== -1) {
 			return menuOption.replace('-next', '');
@@ -136,6 +110,44 @@ app.models.LinkedList = Backbone.Model.extend({
 			return menuOption;
 		}
 	},
+
+	removePropertyNode: function(menuOption) {
+		var propertyName = this.getPropertyNameFromMenuOption(menuOption);
+		var node = this.get(propertyName);
+
+		if (node !== null) {
+			this.set(propertyName, null);
+			this.get('nodes').remove(node);
+		}
+	},
+
+	removePropertyNextNode: function(menuOption) {
+		var propertyName = this.getPropertyNameFromMenuOption(menuOption);
+		var node = this.get(propertyName);
+
+		if (node !== null && node.get('next') !== null) {
+			node.set('next', null);
+			this.get('nodes').remove(node);
+		}
+	},
+
+	delete: function(menuOption) {
+		menuOption = menuOption.toLowerCase();
+
+		if (menuOption === 'null' || menuOption === 'new node')
+			return;
+
+		//front, rear, or p
+		if (menuOption.indexOf('-next') === -1) {
+			this.removePropertyNode(menuOption);
+		}
+		else { //front->next, rear->next, or p->next
+			this.removePropertyNextNode(menuOption);
+		}
+
+
+	},
+	
 
 	forEachReachable: function(callback) {
 		var front = this.get('front');
