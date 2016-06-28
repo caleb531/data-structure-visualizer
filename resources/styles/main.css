@@ -1,7 +1,7 @@
 /* Page */
 
 body {
-	width: 800px;
+	max-width: 800px;
 	margin: 0 auto;
 	font-family: 'Open Sans', sans-serif;
 	text-align: center;
@@ -33,12 +33,19 @@ h1, h2, h3 {
 	margin: 0 5px;
 }
 
-#paper-container svg {
+#paper-container {
+	width: 100%;
 	border: solid 2px #000;
 	box-sizing: border-box;
 	user-select: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
+	font-size: 0;
+	overflow: hidden;
+}
+#paper-container svg {
+	/* Raphael will try to override this; be assertive! */
+	overflow: visible !important;
 }
 
 /* Linked list styles */
