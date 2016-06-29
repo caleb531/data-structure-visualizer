@@ -67,8 +67,3 @@ h1, h2, h3 {
 .pointer-elem {
 	font-weight: bold;
 }
-
-text,
-tspan {
-	pointer-events: none;
-}
