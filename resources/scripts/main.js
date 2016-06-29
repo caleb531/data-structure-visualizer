@@ -53,7 +53,12 @@ app.views.ControlContainer = Backbone.View.extend({
 		var dstNodeId = this.$el.find('.dst-node-options').val();
 		this.stateStack.push(this.dataStructureModel.getState());
 		if (action === 'set') {
-			this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
+			var status = this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
+			// Undo when model reaches impossible state
+			if (status === 'undo') {
+				var state = this.stateStack.pop();
+				this.dataStructureModel.setState(state);
+			}
 			this.dataStructureView.render();
 		} else if (action === 'delete') {
 			this.dataStructureModel.deleteNode(dstNodeId);

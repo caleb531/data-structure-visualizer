@@ -48,7 +48,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		//did we just introduce a cycle?
 		if (this.cycleDetected()) {
 			window.alert('Say NO to cycles!');
-			throw 'Gah, no cycles! WHY YOU DO THIS??'; //yes, this is a debug message =)
+			return 'undo';
 		}
 	},
 
