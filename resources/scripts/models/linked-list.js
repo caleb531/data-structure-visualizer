@@ -251,7 +251,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		this.setState({
 			front: 24,
 			rear: 99,
-			p: 51,
+			p: 24,
 			nodes: [
 				{
 					elem: 24,
@@ -264,11 +264,7 @@ app.models.LinkedList = Backbone.Model.extend({
 				{
 					elem: 99,
 					next: null
-				},
-				{
-					elem: 51,
-					next: null
-				},
+				}
 			]
 		});
 	}
