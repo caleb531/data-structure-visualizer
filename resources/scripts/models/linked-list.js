@@ -1,61 +1,277 @@
-(function ($, _, Backbone, app) {
+(function () {
+
 
 app.models.LinkedListNode = Backbone.Model.extend({
 	defaults: {
+		next: null,
 		elem: null,
-		next: null
+		id : null
 	},
+	idAttribute: 'elem',
 	initiailize: function (elem) {
 		this.set('elem', elem);
 	}
+});
+
+var NodeCollection = Backbone.Collection.extend({
+	model: app.models.LinkedListNode,
 });
 
 app.models.LinkedList = Backbone.Model.extend({
 	defaults: {
 		front: null,
 		rear: null,
+		p: null
 	},
 	initialize: function () {
-		this.set('nodes', []);
+		this.set('nodes', new NodeCollection());
 	},
-	setPointer: function (srcPointerName, dstPointerName) {
-		var dstPointer;
-		if (dstPointerName === 'front') {
-			dstPointer = this.get('front');
-		} else if (dstPointerName === 'rear') {
-			dstPointer = this.get('rear');
-		} else if (dstPointerName === 'null') {
-			dstPointer = null;
-		} else if (dstPointerName === 'new Node') {
-			dstPointer = new app.models.LinkedListNode({
-				elem: 42
+
+
+	setPointer: function (srcPointerId, dstNodeId) {
+
+		if (srcPointerId === dstNodeId) {
+			return;
+		}
+
+		var dstNode = this.getDstNode(dstNodeId);
+
+		if (srcPointerId.indexOf('-next') !== -1) {
+			var node = this.get(srcPointerId.replace('-next', ''));
+			if (node) {
+				node.set('next', dstNode);
+			}
+		} else {
+			this.set(srcPointerId, dstNode);
+		}
+
+		//did we just introduce a cycle?
+		if (this.cycleDetected()) {
+			window.alert('Say NO to cycles!');
+			throw 'Gah, no cycles! WHY YOU DO THIS??'; //yes, this is a debug message =)
+		}
+	},
+
+
+	getDstNode: function(dstNodeId) {
+
+		if (dstNodeId === 'null') {
+			return null;
+		} else if (dstNodeId === 'new-node') {
+			var newNode = new app.models.LinkedListNode({
+				elem: window.prompt('Enter a new value for this node')
 			});
-			this.get('nodes').push(dstPointer);
+
+			this.get('nodes').add(newNode);
+			return newNode;
+
+		} else {
+			// Handle case where Front, Rear, P, or *->Next is set as dst
+			if (dstNodeId.indexOf('-next') !== -1) {
+				var node = this.get(dstNodeId.replace('-next', ''));
+				if (node) {
+					return node.get('next');
+				} else {
+					return null;
+				}
+			} else {
+				return this.get(dstNodeId);
+			}
 		}
-		if (srcPointerName === 'front') {
-			this.set('front', dstPointer);
-		} else if (srcPointerName === 'rear') {
-			this.get('rear', dstPointer);
+
+	},
+
+	//Super simple implementation. This'll be as fast as a optimal solution, but it'll
+	///use up a wee bit of memory, whereas optimal solutions won't.
+	//If memory becomes an issue, I can transition to a fancy version. But for now, I believe the
+	//ease of understanding this algorithm outweights the fact that I'll use a wee bit of memory.
+	cycleDetected: function() {
+		var nodesWeHaveSeen = {};
+		var currentNode = this.get('front');
+
+		while (currentNode !== null) {
+			if (nodesWeHaveSeen.hasOwnProperty(currentNode.get('elem'))) {
+				return true;
+			}
+
+			nodesWeHaveSeen[currentNode.get('elem')] = true;
+			currentNode = currentNode.get('next');
+		}
+
+		return false;
+	},
+
+	getPropertyNameFromMenuOption: function(menuOption) {
+		if (menuOption.indexOf('-next') !== -1) {
+			return menuOption.replace('-next', '');
+		}
+		else {
+			return menuOption;
 		}
 	},
+
+	removePropertyNode: function(menuOption) {
+		var propertyName = this.getPropertyNameFromMenuOption(menuOption);
+		var node = this.get(propertyName);
+
+		if (node !== null) {
+			this.set(propertyName, null);
+			this.get('nodes').remove(node);
+		}
+	},
+
+	removePropertyNextNode: function(menuOption) {
+		var propertyName = this.getPropertyNameFromMenuOption(menuOption);
+		var node = this.get(propertyName);
+
+		if (node !== null && node.get('next') !== null) {
+			node.set('next', null);
+			this.get('nodes').remove(node);
+		}
+	},
+
+	deleteNode: function(menuOption) {
+		menuOption = menuOption.toLowerCase();
+
+		if (menuOption === 'null' || menuOption === 'new-node') {
+			return;
+		}
+
+		//front, rear, or p
+		if (menuOption.indexOf('-next') === -1) {
+			this.removePropertyNode(menuOption);
+		} else { //front->next, rear->next, or p->next
+			this.removePropertyNextNode(menuOption);
+		}
+
+
+	},
+
+
+	forEachReachable: function(callback) {
+		var front = this.get('front');
+		var rear = this.get('rear');
+		var p = this.get('p');
+		var currentNode = front;
+
+		while (currentNode !== null) {
+			callback(currentNode, front, rear, p);
+			currentNode = currentNode.get('next');
+		}
+	},
+
+	//If performance becomes an issue, we can use caching to speed this method up.
+
+	forEachUnreachable: function(callback) {
+		var front = this.get('front');
+		var rear = this.get('rear');
+		var p = this.get('p');
+		var currentNode = front;
+		var seenNodes = {};
+
+		while (currentNode !== null) {
+			seenNodes[currentNode.get('elem')] = true;
+			currentNode = currentNode.get('next');
+		}
+
+		var index = 0;
+
+		while (index < this.get('nodes').length) {
+			currentNode = this.get('nodes').at(index);
+
+			if (!seenNodes.hasOwnProperty(currentNode.get('elem'))) {
+				callback(currentNode, front, rear, p);
+			}
+
+			index = index + 1;
+		}
+	},
+
+	// Return the ID of the given node (or null of node is null)
+	getNodeElem: function (node) {
+		if (node === null) {
+			return null;
+		} else {
+			return node.get('elem');
+		}
+	},
+
+	// Return a serialized object representing the state of the list
+	getState: function () {
+		var state = {
+			front: this.getNodeElem(this.get('front')),
+			rear: this.getNodeElem(this.get('rear')),
+			p: this.getNodeElem(this.get('p')),
+			nodes: []
+		};
+		var nodes = this.get('nodes');
+		var view = this;
+		nodes.forEach(function (node) {
+			state.nodes.push({
+				elem: node.get('elem'),
+				next: view.getNodeElem(node.get('next'))
+			});
+		});
+		return state;
+	},
+
+	setState: function (state) {
+		var nodes = this.get('nodes');
+		// Empty the node collection before pushing new nodes
+		nodes.reset([]);
+		var view = this;
+		// Initially add all nodes with their IDs and element values
+		state.nodes.forEach(function (nodeState) {
+			var node = new app.models.LinkedListNode({
+				elem: nodeState.elem,
+				// Use ID of next node; convert to pointer in next loop
+				next: nodeState.next
+			});
+			if (nodeState.elem === state.front) {
+				view.set('front', node);
+			}
+			if (nodeState.elem === state.rear) {
+				view.set('rear', node);
+			}
+			if (nodeState.elem === state.p) {
+				view.set('p', node);
+			}
+			nodes.add(node);
+		});
+		// Now that all nodes exist, convert next IDs to next pointers
+		nodes.forEach(function (node) {
+			var nextElem = node.get('next');
+			if (nextElem !== null) {
+				node.set('next', nodes.get(nextElem));
+			}
+		});
+	},
+
 	initializeExample: function () {
-		var node3 = new app.models.LinkedListNode({
-			elem: 99
+		this.setState({
+			front: 24,
+			rear: 99,
+			p: 51,
+			nodes: [
+				{
+					elem: 24,
+					next: 42
+				},
+				{
+					elem: 42,
+					next: 99
+				},
+				{
+					elem: 99,
+					next: null
+				},
+				{
+					elem: 51,
+					next: null
+				},
+			]
 		});
-		var node2 = new app.models.LinkedListNode({
-			elem: 42,
-			next: node3
-		});
-		var node1 = new app.models.LinkedListNode({
-			elem: 24,
-			next: node2
-		});
-		var nodes = [node1, node2, node3];
-		this.set('nodes', nodes);
-		this.set('front', nodes[0]);
-		// this.set('rear', nodes[nodes.length - 1]);
-		this.set('rear', nodes[0]);
 	}
 });
 
-}(jQuery, window._, window.Backbone, window.app));
+}());

@@ -1,0 +1,32 @@
+{
+	"predef": [],
+	"globals": {
+		"self": true,
+		"module": true,
+		"require": true,
+		"alert": true,
+		"prompt": true,
+		"confirm": true,
+		"Backbone": true,
+		"Raphael": true,
+		"app": true
+	},
+	"browser": true,
+	"curly": true,
+	"eqeqeq": true,
+	"forin" : true,
+	"freeze": true,
+	"immed": true,
+	"jquery": true,
+	"latedef": true,
+	"newcap": false,
+	"noarg": true,
+	"noempty": true,
+	"nonbsp": true,
+	"quotmark": "single",
+	"trailing": true,
+	"undef": true,
+	"unused": false,
+	"strict": false,
+	"trailing": true
+}
