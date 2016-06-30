@@ -155,6 +155,20 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'pointer-arrow'
 		);
 	},
+	// Draw label pointers (front, rear, p) for a particular node if pointers
+	// point to that node
+	drawLabelPointers: function (currentNode, front, rear, p, nodeX, nodeY) {
+		var styles = this.constructor.styles;
+		if (currentNode === front) {
+			this.drawLabelPointer(currentNode, nodeX - styles.nodeWidth/3, nodeY, 'front', 'F');
+		}
+		if (currentNode === rear) {
+			this.drawLabelPointer(currentNode, nodeX + styles.nodeWidth/3, nodeY, 'rear', 'R');
+		}
+		if (currentNode === p) {
+			this.drawLabelPointer(currentNode, nodeX, nodeY, 'p', 'P');
+		}
+	},
 	// Draw all nodes reachable from front pointer
 	drawReachableNodes: function () {
 		var styles = this.constructor.styles;
@@ -165,15 +179,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		var view = this;
 		// Draw list of reachable nodes by following pointer chain from Front
 		this.model.forEachReachable(function (currentNode, front, rear, p) {
-			if (currentNode === front) {
-				view.drawLabelPointer(currentNode, nodeX - styles.nodeWidth/3, nodeY, 'front', 'F');
-			}
-			if (currentNode === rear) {
-				view.drawLabelPointer(currentNode, nodeX + styles.nodeWidth/3, nodeY, 'rear', 'R');
-			}
-			if (currentNode === p) {
-				view.drawLabelPointer(currentNode, nodeX, nodeY, 'p', 'P');
-			}
+			view.drawLabelPointers(currentNode, front, rear, p, nodeX, nodeY);
 			view.drawReachableNode(currentNode, nodeX, nodeY);
 			nodeX += dx;
 		});
@@ -188,15 +194,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		var view = this;
 		// Draw list of unreachable nodes at bottom of canvas
 		this.model.forEachUnreachable(function (currentNode, front, rear, p) {
-			if (currentNode === front) {
-				view.drawLabelPointer(currentNode, nodeX - styles.nodeWidth/3, nodeY, 'front', 'F');
-			}
-			if (currentNode === rear) {
-				view.drawLabelPointer(currentNode, nodeX + styles.nodeWidth/3, nodeY, 'rear', 'R');
-			}
-			if (currentNode === p) {
-				view.drawLabelPointer(currentNode, nodeX, nodeY, 'p', 'P');
-			}
+			view.drawLabelPointers(currentNode, front, rear, p, nodeX, nodeY);
 			view.drawUnreachableNode(currentNode, nodeX, nodeY);
 			nodeX += dx;
 		});
