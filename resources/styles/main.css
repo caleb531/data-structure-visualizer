@@ -67,6 +67,7 @@ h1, h2, h3 {
 }
 
 /* The elem value of a reachable node pointed to by an unreachable node */
+.pointer-label,
 .pointer-elem {
 	font-weight: bold;
 }
