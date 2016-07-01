@@ -5,7 +5,8 @@ app.views.ControlContainer = Backbone.View.extend({
 		'change .data-structure-options': 'setDataStructure',
 		'click .execute': 'executeAction',
 		'change .action-options': 'changeAction',
-		'click .undo': 'undoAction'
+		'click .undo': 'undoAction',
+		'click .recenter': 'recenterCanvas'
 	},
 	initialize: function () {
 		this.setMenuOptions('.data-structure-options',
@@ -73,6 +74,10 @@ app.views.ControlContainer = Backbone.View.extend({
 		} else {
 			window.alert('Nothing more to undo!');
 		}
+	},
+	// Recenter canvas translation
+	recenterCanvas: function () {
+		this.dataStructureView.recenterCanvas();
 	}
 }, {
 	// Options to display in list of available data structures in UI
