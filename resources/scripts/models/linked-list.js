@@ -133,7 +133,8 @@ app.models.LinkedList = Backbone.Model.extend({
 	deleteNode: function(menuOption) {
 		menuOption = menuOption.toLowerCase();
 
-		if (menuOption === 'null' || menuOption === 'new-node') {
+		if (menuOption === 'null') {
+			alert('Cannot delete NULL');
 			return;
 		}
 
