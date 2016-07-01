@@ -1,9 +1,22 @@
 (function () {
 
+// Metrics used for calculating position, spacing, and sizing of nodes
+var styles = {
+	canvasPaddingX: 50,
+	canvasPaddingY: 100,
+	nodeWidth: 80,
+	nodeHeight: 60,
+	pointerRadius: 10,
+	pointerSpaceEnd: 10,
+	nodeSpace: 50,
+	nodeFontSize: 24,
+	pointerFontSize: 14,
+	nullPositionPointerOffset: 100
+};
+
 app.views.LinkedList = app.views.DataStructure.extend({
 	// Draw the text label containing the value for this particular node
-	drawNodeText: function (node, nodeX, nodeY) {
-		var styles = this.constructor.styles;
+	drawNodeElem: function (node, nodeX, nodeY) {
 		this.canvas.text(
 			nodeX + styles.nodeWidth / 2,
 			nodeY + styles.nodeHeight / 2,
@@ -16,7 +29,6 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	},
 	// Draw the rectangular body of the node
 	drawNodeBody: function (node, nodeX, nodeY, nodeClasses) {
-		var styles = this.constructor.styles;
 		this.canvas.rect(
 			nodeX, nodeY,
 			styles.nodeWidth, styles.nodeHeight
@@ -26,7 +38,6 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	},
 	// Draw the arrow line that points to a node
 	drawNodeNextPointerArrow: function (node, nextNode, nodeX, nodeY) {
-		var styles = this.constructor.styles;
 		this.canvas.path([
 			'M',
 			nodeX + styles.nodeWidth,
@@ -42,7 +53,6 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	},
 	// Draw the a node's "next" pointer, represented by a circle
 	drawNodeNextPointerBody: function (node, nodeX, nodeY, nodeClasses) {
-		var styles = this.constructor.styles;
 		this.canvas.circle(
 			nodeX + styles.nodeWidth,
 			nodeY + styles.nodeHeight / 2,
@@ -53,7 +63,6 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	},
 	// Draw elem text for a reachable node pointed to by an unreachable node
 	drawUnreachableNodeNextPointerText: function (node, nextNode, nodeX, nodeY) {
-		var styles = this.constructor.styles;
 		this.canvas.text(
 			nodeX + styles.nodeWidth,
 			nodeY + styles.nodeHeight / 2,
@@ -65,23 +74,29 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		);
 	},
 	// Draw null, represented as a square with an nodeX inside
-	drawNull: function (node, nodeX, nodeY) {
-		var styles = this.constructor.styles;
+	drawNull: function (nullX, nullY) {
 		this.canvas.path([
 			'M',
-			nodeX + styles.nodeWidth - (styles.pointerRadius / Math.SQRT2),
-			nodeY + styles.nodeHeight / 2 + (styles.pointerRadius / Math.SQRT2),
+			nullX - (styles.pointerRadius / Math.SQRT2),
+			nullY + (styles.pointerRadius / Math.SQRT2),
 			'L',
-			nodeX + styles.nodeWidth + (styles.pointerRadius / Math.SQRT2),
-			nodeY + styles.nodeHeight / 2 - (styles.pointerRadius / Math.SQRT2),
+			nullX + (styles.pointerRadius / Math.SQRT2),
+			nullY - (styles.pointerRadius / Math.SQRT2),
 			'M',
-			nodeX + styles.nodeWidth - (styles.pointerRadius / Math.SQRT2),
-			nodeY + styles.nodeHeight / 2 - (styles.pointerRadius / Math.SQRT2),
+			nullX - (styles.pointerRadius / Math.SQRT2),
+			nullY - (styles.pointerRadius / Math.SQRT2),
 			'L',
-			nodeX + styles.nodeWidth + (styles.pointerRadius / Math.SQRT2),
-			nodeY + styles.nodeHeight / 2 + (styles.pointerRadius / Math.SQRT2),
+			nullX + (styles.pointerRadius / Math.SQRT2),
+			nullY + (styles.pointerRadius / Math.SQRT2),
 		]).node.setAttribute(
 			'class', 'null'
+		);
+	},
+	// Draw null to be placed on a node's "next" pointer
+	drawNodeNull: function (nodeX, nodeY) {
+		this.drawNull(
+			nodeX + styles.nodeWidth,
+			nodeY + styles.nodeHeight / 2
 		);
 	},
 	// Draw the "next" pointer for a node reachable from Front
@@ -92,7 +107,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		}
 		this.drawNodeNextPointerBody(node, nodeX, nodeY, nodeClasses);
 		if (!nextNode) {
-			this.drawNull(node, nodeX, nodeY);
+			this.drawNodeNull(nodeX, nodeY);
 		}
 	},
 	// Draw the "next" pointer for a node not reachable from front
@@ -102,14 +117,14 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		if (nextNode) {
 			this.drawUnreachableNodeNextPointerText(node, nextNode, nodeX, nodeY);
 		} else {
-			this.drawNull(node, nodeX, nodeY);
+			this.drawNodeNull(nodeX, nodeY);
 		}
 	},
 	// Draw an entire node (body, text, and pointer)
 	drawReachableNode: function (node, nodeX, nodeY) {
 		var group = this.canvas.set();
 		this.drawNodeBody(node, nodeX, nodeY, 'reachable');
-		this.drawNodeText(node, nodeX, nodeY);
+		this.drawNodeElem(node, nodeX, nodeY);
 		this.drawReachableNodeNextPointer(node, nodeX, nodeY, 'reachable');
 	},
 	// Draw an entire unreachable node (body, text, but no pointer because it's
@@ -117,58 +132,93 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	drawUnreachableNode: function (node, nodeX, nodeY) {
 		var group = this.canvas.set();
 		this.drawNodeBody(node, nodeX, nodeY, 'unreachable');
-		this.drawNodeText(node, nodeX, nodeY);
+		this.drawNodeElem(node, nodeX, nodeY);
 		this.drawUnreachableNodeNextPointer(node, nodeX, nodeY, 'unreachable');
 	},
-	// Draw a position pointer (e.g. Front or Rear or P, including the text)
-	drawNodePositionPointer: function (node, nodeX, nodeY, labelId, labelName) {
-		var styles = this.constructor.styles;
+	drawPositionPointerBody: function (pointerX, pointerY) {
 		this.canvas.circle(
-			nodeX + (styles.nodeWidth / 2),
-			nodeY - styles.nodeSpace + (styles.pointerSpaceEnd * 2) - styles.pointerRadius,
+			pointerX,
+			pointerY,
 			styles.pointerRadius
 		).node.setAttribute(
 			'class', 'pointer-body'
 		);
+	},
+	drawPositionPointerLabel: function (pointerX, pointerY, labelId, labelName) {
 		this.canvas.text(
-			nodeX + styles.nodeWidth / 2,
-			nodeY - styles.nodeSpace + (styles.pointerSpaceEnd * 2) - styles.pointerRadius,
+			pointerX,
+			pointerY,
 			labelName
 		).attr({
 			'font-size': styles.pointerFontSize
 		}).node.setAttribute(
 			'class', labelId + '-label pointer-label'
 		);
+	},
+	drawPositionPointerArrow: function (pointerX, pointerY, arrowX, arrowY) {
 		this.canvas.path([
 			'M',
-			nodeX + styles.nodeWidth / 2,
-			nodeY - styles.nodeSpace + (styles.pointerSpaceEnd * 2),
+			pointerX,
+			pointerY,
 			'L',
-			nodeX + styles.nodeWidth / 2,
-			nodeY - styles.pointerSpaceEnd
+			arrowX,
+			arrowY
 		]).attr({
 			'arrow-end': 'block-wide-long'
 		}).node.setAttribute(
 			'class', 'pointer-arrow'
 		);
 	},
-	// Draw label pointers (front, rear, p) for a particular node if pointers
-	// point to that node
+	// Draw a position pointer (e.g. Front or Rear or P) pointing to a node
+	drawNodePositionPointer: function (nodeX, nodeY, labelId, labelName) {
+		var pointerX = nodeX + (styles.nodeWidth / 2);
+		var pointerY = nodeY - styles.nodeSpace + (styles.pointerSpaceEnd * 2) - styles.pointerRadius;
+		var arrowY = nodeY - styles.pointerSpaceEnd;
+		this.drawPositionPointerArrow(pointerX, pointerY, pointerX, arrowY);
+		this.drawPositionPointerBody(pointerX, pointerY);
+		this.drawPositionPointerLabel(pointerX, pointerY, labelId, labelName);
+	},
+	// Draw a position pointer pointing to null
+	drawNullPositionPointer: function (pointerX, pointerY, labelId, labelName) {
+		var arrowX = pointerX + styles.nodeSpace - (styles.pointerSpaceEnd * 2);
+		var arrowY = pointerY;
+		this.drawPositionPointerArrow(pointerX, pointerY, arrowX, arrowY);
+		this.drawPositionPointerBody(pointerX, pointerY);
+		this.drawPositionPointerLabel(pointerX, pointerY, labelId, labelName);
+		this.drawNull(arrowX + styles.pointerRadius * Math.SQRT2, arrowY);
+	},
+	// Draw all position pointers (front, rear, p) for a particular node if
+	// pointers point to that node
 	drawNodePositionPointers: function (currentNode, front, rear, p, nodeX, nodeY) {
-		var styles = this.constructor.styles;
 		if (currentNode === front) {
-			this.drawNodePositionPointer(currentNode, nodeX - styles.nodeWidth/3, nodeY, 'front', 'F');
-		}
-		if (currentNode === rear) {
-			this.drawNodePositionPointer(currentNode, nodeX + styles.nodeWidth/3, nodeY, 'rear', 'R');
+			this.drawNodePositionPointer(nodeX - (styles.nodeWidth / 3), nodeY, 'front', 'F');
 		}
 		if (currentNode === p) {
-			this.drawNodePositionPointer(currentNode, nodeX, nodeY, 'p', 'P');
+			this.drawNodePositionPointer(nodeX, nodeY, 'p', 'P');
+		}
+		if (currentNode === rear) {
+			this.drawNodePositionPointer(nodeX + (styles.nodeWidth / 3), nodeY, 'rear', 'R');
+		}
+	},
+	// Draw all position pointers that are pointing to null; these are displayed
+	// above the linked list in the very top region of the canvas
+	drawNullPositionPointers: function () {
+		var pointerX = styles.canvasPaddingX / 2;
+		var pointerY = styles.canvasPaddingX / 2;
+		if (this.model.get('front') === null) {
+			this.drawNullPositionPointer(pointerX, pointerY, 'front', 'F');
+			pointerX += styles.nullPositionPointerOffset;
+		}
+		if (this.model.get('p') === null) {
+			this.drawNullPositionPointer(pointerX, pointerY, 'p', 'P');
+			pointerX += styles.nullPositionPointerOffset;
+		}
+		if (this.model.get('rear') === null) {
+			this.drawNullPositionPointer(pointerX, pointerY, 'rear', 'R');
 		}
 	},
 	// Draw all nodes reachable from front pointer
 	drawReachableNodes: function () {
-		var styles = this.constructor.styles;
 		var nodeX = styles.canvasPaddingX;
 		var nodeY = styles.canvasPaddingY;
 		var dx = styles.nodeWidth +
@@ -183,7 +233,6 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	},
 	// Draw all nodes not reachable from front pointer
 	drawUnreachableNodes: function () {
-		var styles = this.constructor.styles;
 		var nodeX = styles.canvasPaddingX;
 		var nodeY = this.canvas.height - styles.canvasPaddingY;
 		var dx = styles.nodeWidth +
@@ -200,20 +249,9 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		this.canvas.clear();
 		this.drawReachableNodes();
 		this.drawUnreachableNodes();
+		this.drawNullPositionPointers();
 	}
 }, {
-	// Metrics used for calculating position, spacing, and sizing of nodes
-	styles: {
-		canvasPaddingX: 50,
-		canvasPaddingY: 80,
-		nodeWidth: 80,
-		nodeHeight: 60,
-		pointerRadius: 10,
-		pointerSpaceEnd: 10,
-		nodeSpace: 50,
-		nodeFontSize: 24,
-		pointerFontSize: 14
-	},
 	// Options to display for lvalue dropdown control on the left
 	srcPointerOptions: [
 		{value: 'front', label: 'Front'},
