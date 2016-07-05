@@ -57,10 +57,10 @@ app.views.ControlContainer = Backbone.View.extend({
 			var status = this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
 			// Undo when model reaches impossible state
 			if (status === 'undo') {
-				var state = this.stateStack.pop();
-				this.dataStructureModel.setState(state);
+				this.undoAction();
+			} else {
+				this.dataStructureView.render();
 			}
-			this.dataStructureView.render();
 		} else if (action === 'delete') {
 			this.dataStructureModel.deleteNode(dstNodeId);
 			this.dataStructureView.render();
