@@ -72,7 +72,7 @@ app.views.ControlContainer = Backbone.View.extend({
 			this.dataStructureModel.setState(state);
 			this.dataStructureView.render();
 		} else {
-			window.alert('Nothing more to undo!');
+			alert('Nothing more to undo!');
 		}
 	},
 	// Recenter canvas translation

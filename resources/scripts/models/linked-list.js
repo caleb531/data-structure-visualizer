@@ -38,7 +38,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		// Check for segmentation faults
 		if (dstNode !== null && dstNode.get('freed') === true) {
-			window.alert('Segmentation fault!');
+			alert('Segmentation fault!');
 			return;
 		}
 
@@ -53,7 +53,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		//did we just introduce a cycle?
 		if (this.cycleDetected()) {
-			window.alert('Say NO to cycles!');
+			alert('Say NO to cycles!');
 			return 'undo';
 		}
 	},
@@ -65,7 +65,7 @@ app.models.LinkedList = Backbone.Model.extend({
 			return null;
 		} else if (dstNodeId === 'new-node') {
 			var newNode = new app.models.LinkedListNode({
-				elem: window.prompt('Enter a new value for this node')
+				elem: prompt('Enter a new value for this node')
 			});
 
 			this.get('nodes').add(newNode);
