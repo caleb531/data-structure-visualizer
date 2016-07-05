@@ -16,7 +16,7 @@ var styles = {
 
 app.views.LinkedList = app.views.DataStructure.extend({
 	// Draw the text label containing the value for this particular node
-	drawNodeElem: function (node, nodeX, nodeY) {
+	drawNodeElem: function (node, nodeX, nodeY, nodeClasses) {
 		this.canvas.text(
 			nodeX + styles.nodeWidth / 2,
 			nodeY + styles.nodeHeight / 2,
@@ -24,7 +24,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		).attr({
 			'font-size': styles.nodeFontSize
 		}).node.setAttribute(
-			'class', 'node-elem'
+			'class', 'node-elem' + (nodeClasses ? ' ' + nodeClasses : '')
 		);
 	},
 	// Draw the rectangular body of the node
@@ -122,17 +122,22 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	},
 	// Draw an entire node (body, text, and pointer)
 	drawReachableNode: function (node, nodeX, nodeY) {
-		var group = this.canvas.set();
-		this.drawNodeBody(node, nodeX, nodeY, 'reachable');
-		this.drawNodeElem(node, nodeX, nodeY);
-		this.drawReachableNodeNextPointer(node, nodeX, nodeY, 'reachable');
+		var group = this.canvas.set(), nodeClasses;
+		if (node.get('freed') === true) {
+			nodeClasses = 'freed';
+		} else {
+			nodeClasses = 'reachable';
+		}
+		this.drawNodeBody(node, nodeX, nodeY, nodeClasses);
+		this.drawNodeElem(node, nodeX, nodeY, nodeClasses);
+		this.drawReachableNodeNextPointer(node, nodeX, nodeY, nodeClasses);
 	},
 	// Draw an entire unreachable node (body, text, but no pointer because it's
 	// not in a chain)
 	drawUnreachableNode: function (node, nodeX, nodeY) {
 		var group = this.canvas.set();
 		this.drawNodeBody(node, nodeX, nodeY, 'unreachable');
-		this.drawNodeElem(node, nodeX, nodeY);
+		this.drawNodeElem(node, nodeX, nodeY, 'unreachable');
 		this.drawUnreachableNodeNextPointer(node, nodeX, nodeY, 'unreachable');
 	},
 	drawPositionPointerBody: function (pointerX, pointerY) {

@@ -5,7 +5,7 @@ app.models.LinkedListNode = Backbone.Model.extend({
 	defaults: {
 		next: null,
 		elem: null,
-		id : null
+		freed: false
 	},
 	idAttribute: 'elem',
 	initiailize: function (elem) {
@@ -101,53 +101,21 @@ app.models.LinkedList = Backbone.Model.extend({
 		return false;
 	},
 
-	getPropertyNameFromMenuOption: function(menuOption) {
-		if (menuOption.indexOf('-next') !== -1) {
-			return menuOption.replace('-next', '');
-		}
-		else {
-			return menuOption;
-		}
-	},
+	deleteNode: function(dstNodeId) {
+		dstNodeId = dstNodeId.toLowerCase();
 
-	removePropertyNode: function(menuOption) {
-		var propertyName = this.getPropertyNameFromMenuOption(menuOption);
-		var node = this.get(propertyName);
-
-		if (node !== null) {
-			this.set(propertyName, null);
-			this.get('nodes').remove(node);
-		}
-	},
-
-	removePropertyNextNode: function(menuOption) {
-		var propertyName = this.getPropertyNameFromMenuOption(menuOption);
-		var node = this.get(propertyName);
-
-		if (node !== null && node.get('next') !== null) {
-			node.set('next', null);
-			this.get('nodes').remove(node);
-		}
-	},
-
-	deleteNode: function(menuOption) {
-		menuOption = menuOption.toLowerCase();
-
-		if (menuOption === 'null') {
+		if (dstNodeId === 'null') {
 			alert('Cannot delete NULL');
 			return;
 		}
 
-		//front, rear, or p
-		if (menuOption.indexOf('-next') === -1) {
-			this.removePropertyNode(menuOption);
-		} else { //front->next, rear->next, or p->next
-			this.removePropertyNextNode(menuOption);
-		}
-
+		var dstNode = this.getDstNode(dstNodeId);
+		this.get('nodes').remove(dstNode.get('elem'));
+		dstNode.set('next', null);
+		dstNode.set('elem', '?');
+		dstNode.set('freed', true);
 
 	},
-
 
 	forEachReachable: function(callback) {
 		var front = this.get('front');

@@ -57,9 +57,18 @@ h1, h2, h3 {
 	stroke-width: 2
 }
 
+/* Gray out freed (deleted) nodes */
+.freed {
+	opacity: 0.5;
+}
+
 .node-body,
 .pointer-body {
 	fill: #fff;
+}
+.pointer-body.freed,
+.pointer-body.freed + .null {
+	display: none;
 }
 .node-body.unreachable,
 .pointer-body.unreachable {
