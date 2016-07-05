@@ -116,6 +116,13 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 
 		var dstNode = this.getDstNode(dstNodeId);
+
+		// Trigger segfault if user attempts to free already-free memory
+		if (dstNode.get('freed') === true) {
+			alert('Segmentation fault!');
+			return;
+		}
+
 		this.get('nodes').remove(dstNode.get('elem'));
 		dstNode.set('next', null);
 		dstNode.set('elem', '?');
