@@ -46,6 +46,9 @@ app.models.LinkedList = Backbone.Model.extend({
 			var node = this.get(srcPointerId.replace('-next', ''));
 			if (node) {
 				node.set('next', dstNode);
+			} else {
+				alert('Segmentation fault!');
+				return;
 			}
 		} else {
 			this.set(srcPointerId, dstNode);
