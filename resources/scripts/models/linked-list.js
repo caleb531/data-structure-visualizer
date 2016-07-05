@@ -194,11 +194,11 @@ app.models.LinkedList = Backbone.Model.extend({
 			nodes: []
 		};
 		var nodes = this.get('nodes');
-		var view = this;
+		var model = this;
 		nodes.forEach(function (node) {
 			state.nodes.push({
 				elem: node.get('elem'),
-				next: view.getNodeElem(node.get('next'))
+				next: model.getNodeElem(node.get('next'))
 			});
 		});
 		return state;
@@ -208,7 +208,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		var nodes = this.get('nodes');
 		// Empty the node collection before pushing new nodes
 		nodes.reset([]);
-		var view = this;
+		var model = this;
 		// Initially add all nodes with their IDs and element values
 		state.nodes.forEach(function (nodeState) {
 			var node = new app.models.LinkedListNode({
@@ -217,13 +217,13 @@ app.models.LinkedList = Backbone.Model.extend({
 				next: nodeState.next
 			});
 			if (nodeState.elem === state.front) {
-				view.set('front', node);
+				model.set('front', node);
 			}
 			if (nodeState.elem === state.rear) {
-				view.set('rear', node);
+				model.set('rear', node);
 			}
 			if (nodeState.elem === state.p) {
-				view.set('p', node);
+				model.set('p', node);
 			}
 			nodes.add(node);
 		});
