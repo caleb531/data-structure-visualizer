@@ -27,6 +27,10 @@ app.models.LinkedList = Backbone.Model.extend({
 		this.set('nodes', new NodeCollection());
 	},
 
+	// Trigger a segmentation fault by alerting the user
+	triggerSegfault: function () {
+		alert('Segmentation fault!');
+	},
 
 	setPointer: function (srcPointerId, dstNodeId) {
 
@@ -38,7 +42,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		// Check for segmentation faults
 		if (dstNode !== null && dstNode.get('freed') === true) {
-			alert('Segmentation fault!');
+			this.triggerSegfault();
 			return;
 		}
 
@@ -47,7 +51,7 @@ app.models.LinkedList = Backbone.Model.extend({
 			if (node) {
 				node.set('next', dstNode);
 			} else {
-				alert('Segmentation fault!');
+				this.triggerSegfault();
 				return;
 			}
 		} else {
@@ -122,7 +126,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		// Trigger segfault if user attempts to free already-free memory
 		if (dstNode.get('freed') === true) {
-			alert('Segmentation fault!');
+			this.triggerSegfault();
 			return;
 		}
 
