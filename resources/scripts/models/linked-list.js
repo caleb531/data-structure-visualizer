@@ -130,7 +130,6 @@ app.models.LinkedList = Backbone.Model.extend({
 			return;
 		}
 
-		this.get('nodes').remove(dstNode.get('elem'));
 		dstNode.set('next', null);
 		dstNode.set('elem', '?');
 		dstNode.set('freed', true);
@@ -168,7 +167,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		while (index < this.get('nodes').length) {
 			currentNode = this.get('nodes').at(index);
 
-			if (!seenNodes.hasOwnProperty(currentNode.get('elem'))) {
+			if (!seenNodes.hasOwnProperty(currentNode.get('elem')) && currentNode.get('freed') === false) {
 				callback(currentNode, front, rear, p);
 			}
 
@@ -198,7 +197,8 @@ app.models.LinkedList = Backbone.Model.extend({
 		nodes.forEach(function (node) {
 			state.nodes.push({
 				elem: node.get('elem'),
-				next: model.getNodeElem(node.get('next'))
+				next: model.getNodeElem(node.get('next')),
+				freed: node.get('freed')
 			});
 		});
 		return state;
@@ -214,7 +214,8 @@ app.models.LinkedList = Backbone.Model.extend({
 			var node = new app.models.LinkedListNode({
 				elem: nodeState.elem,
 				// Use ID of next node; convert to pointer in next loop
-				next: nodeState.next
+				next: nodeState.next,
+				freed: nodeState.freed
 			});
 			if (nodeState.elem === state.front) {
 				model.set('front', node);
