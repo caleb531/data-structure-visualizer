@@ -21,6 +21,7 @@ app.models.LinkedList = Backbone.Model.extend({
 	defaults: {
 		front: null,
 		rear: null,
+		t: null,
 		p: null
 	},
 	initialize: function () {
@@ -139,10 +140,11 @@ app.models.LinkedList = Backbone.Model.extend({
 		var front = this.get('front');
 		var rear = this.get('rear');
 		var p = this.get('p');
+		var t = this.get('t');
 		var currentNode = front;
 
 		while (currentNode !== null) {
-			callback(currentNode, front, rear, p);
+			callback(currentNode, front, rear, p, t);
 			currentNode = currentNode.get('next');
 		}
 	},
@@ -153,6 +155,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		var front = this.get('front');
 		var rear = this.get('rear');
 		var p = this.get('p');
+		var t = this.get('t');
 		var currentNode = front;
 		var seenNodes = {};
 
@@ -167,7 +170,7 @@ app.models.LinkedList = Backbone.Model.extend({
 			currentNode = this.get('nodes').at(index);
 
 			if (!seenNodes.hasOwnProperty(currentNode.get('elem')) && currentNode.get('freed') === false) {
-				callback(currentNode, front, rear, p);
+				callback(currentNode, front, rear, p, t);
 			}
 
 			index = index + 1;
@@ -189,6 +192,7 @@ app.models.LinkedList = Backbone.Model.extend({
 			front: this.getNodeElem(this.get('front')),
 			rear: this.getNodeElem(this.get('rear')),
 			p: this.getNodeElem(this.get('p')),
+			t: this.getNodeElem(this.get('t')),
 			nodes: []
 		};
 		var nodes = this.get('nodes');
@@ -225,6 +229,9 @@ app.models.LinkedList = Backbone.Model.extend({
 			if (nodeState.elem === state.p) {
 				model.set('p', node);
 			}
+			if (nodeState.elem === state.t) {
+				model.set('t', node);
+			}
 			nodes.add(node);
 		});
 		// Now that all nodes exist, convert next IDs to next pointers
@@ -245,6 +252,7 @@ app.models.LinkedList = Backbone.Model.extend({
 			front: 24,
 			rear: 99,
 			p: 24,
+			t: 24,
 			nodes: [
 				{
 					elem: 24,
