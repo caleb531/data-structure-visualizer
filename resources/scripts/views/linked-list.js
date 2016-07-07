@@ -4,7 +4,7 @@
 var styles = {
 	canvasPaddingX: 50,
 	canvasPaddingY: 100,
-	nodeWidth: 80,
+	nodeWidth: 100,
 	nodeHeight: 60,
 	pointerRadius: 10,
 	pointerSpaceEnd: 10,
@@ -15,12 +15,6 @@ var styles = {
 };
 
 app.views.LinkedList = app.views.DataStructure.extend({
-	initialize: function () {
-		// A map to keep track of which position pointers (e.g. front, rear, p)
-		// have been already drawn
-		this.positionPointersDrawn = {};
-		this.constructor.__super__.initialize.apply(this, arguments);
-	},
 	// Draw the text label containing the value for this particular node
 	drawNodeElem: function (node, nodeX, nodeY, nodeElem, nodeClasses) {
 		this.canvas.text(
@@ -197,8 +191,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		);
 	},
 	// Draw a position pointer (e.g. Front or Rear or P) pointing to a node
-	drawNodePositionPointer: function (nodeX, nodeY, pointerId, labelName) {
-		var pointerX = nodeX + (styles.nodeWidth / 2);
+	drawNodePositionPointer: function (pointerX, nodeY, pointerId, labelName) {
 		var pointerY = nodeY - styles.nodeSpace + (styles.pointerSpaceEnd * 2) - styles.pointerRadius;
 		var arrowY = nodeY - styles.pointerSpaceEnd;
 		this.drawPositionPointerArrow(pointerX, pointerY, pointerX, arrowY);
@@ -229,15 +222,23 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	},
 	// Draw all position pointers (front, rear, p) for a particular node if
 	// pointers point to that node
-	drawNodePositionPointers: function (currentNode, front, rear, p, nodeX, nodeY) {
+	drawNodePositionPointers: function (currentNode, front, rear, p, t, nodeX, nodeY) {
+		var pointerX = nodeX + styles.pointerRadius;
+		var dx = (styles.nodeWidth - (2 * styles.pointerRadius)) / 3;
 		if (currentNode === front) {
-			this.drawNodePositionPointer(nodeX - (styles.nodeWidth / 3), nodeY, 'front', 'F');
+			this.drawNodePositionPointer(pointerX, nodeY, 'front', 'F');
+			pointerX += dx;
 		}
 		if (currentNode === p) {
-			this.drawNodePositionPointer(nodeX, nodeY, 'p', 'P');
+			this.drawNodePositionPointer(pointerX, nodeY, 'p', 'P');
+			pointerX += dx;
+		}
+		if (currentNode === t) {
+			this.drawNodePositionPointer(pointerX, nodeY, 't', 'T');
+			pointerX += dx;
 		}
 		if (currentNode === rear) {
-			this.drawNodePositionPointer(nodeX + (styles.nodeWidth / 3), nodeY, 'rear', 'R');
+			this.drawNodePositionPointer(pointerX, nodeY, 'rear', 'R');
 		}
 	},
 	// Draw all position pointers that are pointing to null or to deallocated
@@ -248,6 +249,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		var pointerY = styles.canvasPaddingX / 2;
 		var front = this.model.get('front');
 		var p = this.model.get('p');
+		var t = this.model.get('t');
 		var rear = this.model.get('rear');
 		if (front === null) {
 			this.drawPositionPointerToNull(pointerX, pointerY, 'front', 'F');
@@ -263,11 +265,17 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			this.drawPositionPointerToFreed(pointerX, pointerY, 'p', 'P');
 			pointerX += styles.specialPositionPointerOffset;
 		}
+		if (t === null) {
+			this.drawPositionPointerToNull(pointerX, pointerY, 't', 'T');
+			pointerX += styles.specialPositionPointerOffset;
+		} else if (t.get('freed') === true && this.positionPointersDrawn.t !== true) {
+			this.drawPositionPointerToFreed(pointerX, pointerY, 't', 'T');
+			pointerX += styles.specialPositionPointerOffset;
+		}
 		if (rear === null) {
 			this.drawPositionPointerToNull(pointerX, pointerY, 'rear', 'R');
 		} else if (rear.get('freed') === true && this.positionPointersDrawn.rear !== true) {
 			this.drawPositionPointerToFreed(pointerX, pointerY, 'rear', 'R');
-			pointerX += styles.specialPositionPointerOffset;
 		}
 	},
 	// Draw all nodes reachable from front pointer
@@ -278,8 +286,8 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			styles.nodeSpace;
 		var view = this;
 		// Draw list of reachable nodes by following pointer chain from Front
-		this.model.forEachReachable(function (currentNode, front, rear, p) {
-			view.drawNodePositionPointers(currentNode, front, rear, p, nodeX, nodeY);
+		this.model.forEachReachable(function (currentNode, front, rear, p, t) {
+			view.drawNodePositionPointers(currentNode, front, rear, p, t, nodeX, nodeY);
 			view.drawReachableNode(currentNode, nodeX, nodeY);
 			nodeX += dx;
 		});
@@ -292,14 +300,19 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			styles.nodeSpace;
 		var view = this;
 		// Draw list of unreachable nodes at bottom of canvas
-		this.model.forEachUnreachable(function (currentNode, front, rear, p) {
-			view.drawNodePositionPointers(currentNode, front, rear, p, nodeX, nodeY);
+		this.model.forEachUnreachable(function (currentNode, front, rear, p, t) {
+			view.drawNodePositionPointers(currentNode, front, rear, p, t, nodeX, nodeY);
 			view.drawUnreachableNode(currentNode, nodeX, nodeY);
 			nodeX += dx;
 		});
 	},
 	render: function () {
+		// Clear canvas to start fresh
 		this.canvas.clear();
+		// A map to keep track of which position pointers (e.g. front, rear, p)
+		// have been already drawn
+		this.positionPointersDrawn = {};
+		// Draw everything
 		this.drawReachableNodes();
 		this.drawUnreachableNodes();
 		this.drawSpecialPositionPointers();
@@ -312,7 +325,9 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		{value: 'rear', label: 'Rear'},
 		{value: 'rear-next', label: 'Rear->Next'},
 		{value: 'p', label: 'P'},
-		{value: 'p-next', label: 'P->Next'}
+		{value: 'p-next', label: 'P->Next'},
+		{value: 't', label: 'T'},
+		{value: 't-next', label: 'T->Next'}
 	],
 	// Options to display for rvalue dropdown control on the right
 	dstNodeOptions: [
@@ -322,6 +337,8 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		{value: 'rear-next', label: 'Rear->Next'},
 		{value: 'p', label: 'P'},
 		{value: 'p-next', label: 'P->Next'},
+		{value: 't', label: 'T'},
+		{value: 't-next', label: 'T->Next'},
 		{value: 'new-node', label: 'new Node'},
 		{value: 'null', label: 'NULL'}
 	]
