@@ -1,0 +1,70 @@
+/* App controls */
+
+#controls {
+	margin-bottom: 20px;
+	font-size: 0;
+	text-align: center;
+}
+#controls select {
+	margin: 0 5px;
+	font-size: 16px;
+}
+#controls .data-structure-options {
+	display: block;
+	margin: 0 auto;
+	margin-bottom: 10px;
+}
+#controls .buttons {
+	margin-top: 10px;
+}
+#controls button {
+	margin: 0 5px;
+}
+
+#canvas-container {
+	width: 100%;
+	border: solid 2px #000;
+	box-sizing: border-box;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	font-size: 0;
+	overflow: hidden;
+}
+#canvas-container svg {
+	/* Raphael will try to override this; be assertive! */
+	overflow: visible !important;
+}
+
+/* Linked list styles */
+
+.node-body,
+.pointer-arrow,
+.pointer-body,
+.null {
+	stroke-width: 2
+}
+
+/* Gray out freed (deleted) nodes */
+.freed {
+	opacity: 0.5;
+}
+
+.node-body,
+.pointer-body {
+	fill: #fff;
+}
+.pointer-body.freed,
+.pointer-body.freed + .null {
+	display: none;
+}
+.node-body.unreachable,
+.pointer-body.unreachable {
+	fill: #ddd;
+}
+
+/* The elem value of a reachable node pointed to by an unreachable node */
+.pointer-label,
+.pointer-elem {
+	font-weight: bold;
+}
