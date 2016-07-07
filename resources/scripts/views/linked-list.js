@@ -15,12 +15,18 @@ var styles = {
 };
 
 app.views.LinkedList = app.views.DataStructure.extend({
+	initialize: function () {
+		// A map to keep track of which position pointers (e.g. front, rear, p)
+		// have been already drawn
+		this.positionPointersDrawn = {};
+		this.constructor.__super__.initialize.apply(this, arguments);
+	},
 	// Draw the text label containing the value for this particular node
-	drawNodeElem: function (node, nodeX, nodeY, nodeClasses) {
+	drawNodeElem: function (node, nodeX, nodeY, nodeElem, nodeClasses) {
 		this.canvas.text(
 			nodeX + styles.nodeWidth / 2,
 			nodeY + styles.nodeHeight / 2,
-			String(node.get('elem'))
+			String(nodeElem)
 		).attr({
 			'font-size': styles.nodeFontSize
 		}).node.setAttribute(
@@ -141,7 +147,11 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			nodeClasses = 'reachable';
 		}
 		this.drawNodeBody(node, nodeX, nodeY, nodeClasses);
-		this.drawNodeElem(node, nodeX, nodeY, nodeClasses);
+		if (node.get('freed') === true) {
+			this.drawNodeElem(node, nodeX, nodeY, '?', nodeClasses);
+		} else {
+			this.drawNodeElem(node, nodeX, nodeY, node.get('elem'), nodeClasses);
+		}
 		this.drawReachableNodeNextPointer(node, nodeX, nodeY, nodeClasses);
 	},
 	// Draw an entire unreachable node (body, text, but no pointer because it's
@@ -149,7 +159,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 	drawUnreachableNode: function (node, nodeX, nodeY) {
 		var group = this.canvas.set();
 		this.drawNodeBody(node, nodeX, nodeY, 'unreachable');
-		this.drawNodeElem(node, nodeX, nodeY, 'unreachable');
+		this.drawNodeElem(node, nodeX, nodeY, node.get('elem'), 'unreachable');
 		this.drawUnreachableNodeNextPointer(node, nodeX, nodeY, 'unreachable');
 	},
 	drawPositionPointerBody: function (pointerX, pointerY) {
@@ -161,7 +171,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'pointer-body'
 		);
 	},
-	drawPositionPointerLabel: function (pointerX, pointerY, labelId, labelName) {
+	drawPositionPointerLabel: function (pointerX, pointerY, pointerId, labelName) {
 		this.canvas.text(
 			pointerX,
 			pointerY,
@@ -169,7 +179,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		).attr({
 			'font-size': styles.pointerFontSize
 		}).node.setAttribute(
-			'class', labelId + '-label pointer-label'
+			'class', pointerId + '-label pointer-label'
 		);
 	},
 	drawPositionPointerArrow: function (pointerX, pointerY, arrowX, arrowY) {
@@ -187,32 +197,35 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		);
 	},
 	// Draw a position pointer (e.g. Front or Rear or P) pointing to a node
-	drawNodePositionPointer: function (nodeX, nodeY, labelId, labelName) {
+	drawNodePositionPointer: function (nodeX, nodeY, pointerId, labelName) {
 		var pointerX = nodeX + (styles.nodeWidth / 2);
 		var pointerY = nodeY - styles.nodeSpace + (styles.pointerSpaceEnd * 2) - styles.pointerRadius;
 		var arrowY = nodeY - styles.pointerSpaceEnd;
 		this.drawPositionPointerArrow(pointerX, pointerY, pointerX, arrowY);
 		this.drawPositionPointerBody(pointerX, pointerY);
-		this.drawPositionPointerLabel(pointerX, pointerY, labelId, labelName);
+		this.drawPositionPointerLabel(pointerX, pointerY, pointerId, labelName);
+		this.positionPointersDrawn[pointerId] = true;
 	},
 	// Draw a position pointer pointing to null
-	drawPositionPointerToNull: function (pointerX, pointerY, labelId, labelName) {
+	drawPositionPointerToNull: function (pointerX, pointerY, pointerId, labelName) {
 		var arrowX = pointerX + styles.nodeSpace - (styles.pointerSpaceEnd * 2);
 		var arrowY = pointerY;
 		this.drawPositionPointerArrow(pointerX, pointerY, arrowX, arrowY);
 		this.drawPositionPointerBody(pointerX, pointerY);
-		this.drawPositionPointerLabel(pointerX, pointerY, labelId, labelName);
+		this.drawPositionPointerLabel(pointerX, pointerY, pointerId, labelName);
 		this.drawNull(arrowX + styles.pointerRadius * Math.SQRT2, arrowY);
+		this.positionPointersDrawn[pointerId] = true;
 	},
 	// Draw a position pointer pointing to freed memory (where no nodes are
 	// pointing to that same memory)
-	drawPositionPointerToFreed: function (pointerX, pointerY, labelId, labelName) {
+	drawPositionPointerToFreed: function (pointerX, pointerY, pointerId, labelName) {
 		var arrowX = pointerX + styles.nodeSpace - (styles.pointerSpaceEnd * 2);
 		var arrowY = pointerY;
 		this.drawPositionPointerArrow(pointerX, pointerY, arrowX, arrowY);
 		this.drawPositionPointerBody(pointerX, pointerY);
-		this.drawPositionPointerLabel(pointerX, pointerY, labelId, labelName);
+		this.drawPositionPointerLabel(pointerX, pointerY, pointerId, labelName);
 		this.drawFreed(arrowX + styles.pointerRadius * Math.SQRT2, arrowY);
+		this.positionPointersDrawn[pointerId] = true;
 	},
 	// Draw all position pointers (front, rear, p) for a particular node if
 	// pointers point to that node
@@ -239,20 +252,20 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		if (front === null) {
 			this.drawPositionPointerToNull(pointerX, pointerY, 'front', 'F');
 			pointerX += styles.specialPositionPointerOffset;
-		} else if (front.get('freed') === true) {
+		} else if (front.get('freed') === true && this.positionPointersDrawn.front !== true) {
 			this.drawPositionPointerToFreed(pointerX, pointerY, 'front', 'F');
 			pointerX += styles.specialPositionPointerOffset;
 		}
 		if (p === null) {
 			this.drawPositionPointerToNull(pointerX, pointerY, 'p', 'P');
 			pointerX += styles.specialPositionPointerOffset;
-		} else if (p.get('freed') === true) {
+		} else if (p.get('freed') === true && this.positionPointersDrawn.p !== true) {
 			this.drawPositionPointerToFreed(pointerX, pointerY, 'p', 'P');
 			pointerX += styles.specialPositionPointerOffset;
 		}
 		if (rear === null) {
 			this.drawPositionPointerToNull(pointerX, pointerY, 'rear', 'R');
-		} else if (rear.get('freed') === true) {
+		} else if (rear.get('freed') === true && this.positionPointersDrawn.rear !== true) {
 			this.drawPositionPointerToFreed(pointerX, pointerY, 'rear', 'R');
 			pointerX += styles.specialPositionPointerOffset;
 		}
