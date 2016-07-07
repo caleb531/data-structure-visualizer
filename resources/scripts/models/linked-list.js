@@ -236,6 +236,10 @@ app.models.LinkedList = Backbone.Model.extend({
 		});
 	},
 
+	reset: function() {
+		this.initializeExample();
+	},
+
 	initializeExample: function () {
 		this.setState({
 			front: 24,

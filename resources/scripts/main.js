@@ -4,6 +4,7 @@ app.views.ControlContainer = Backbone.View.extend({
 	events: {
 		'change .data-structure-options': 'setDataStructure',
 		'click .execute': 'executeAction',
+		'click .reset': 'resetLinkedList',
 		'change .action-options': 'changeAction',
 		'click .undo': 'undoAction',
 		'click .recenter': 'recenterCanvas'
@@ -78,6 +79,10 @@ app.views.ControlContainer = Backbone.View.extend({
 	// Recenter canvas translation
 	recenterCanvas: function () {
 		this.dataStructureView.recenterCanvas();
+	},
+	resetLinkedList: function() {
+		this.dataStructureModel.reset();
+		this.dataStructureView.render();
 	}
 }, {
 	// Options to display in list of available data structures in UI
