@@ -131,7 +131,6 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 
 		dstNode.set('next', null);
-		dstNode.set('elem', '?');
 		dstNode.set('freed', true);
 
 	},
