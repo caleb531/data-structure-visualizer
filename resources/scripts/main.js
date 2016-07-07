@@ -4,7 +4,7 @@ app.views.ControlContainer = Backbone.View.extend({
 	events: {
 		'change .data-structure-options': 'setDataStructure',
 		'click .execute': 'executeAction',
-		'click .reset': 'resetLinkedList',
+		'click .reset': 'resetStructure',
 		'change .action-options': 'changeAction',
 		'click .undo': 'undoAction',
 		'click .recenter': 'recenterCanvas'
@@ -33,7 +33,7 @@ app.views.ControlContainer = Backbone.View.extend({
 		var DataStructureView = app.views[dataStructureName];
 		// Variables pointing to instances of the above constructors
 		this.dataStructureModel = new DataStructureModel();
-		this.dataStructureModel.initializeExample();
+		this.dataStructureModel.reset();
 		this.dataStructureView = new DataStructureView({
 			el: $('#canvas-container')[0],
 			model: this.dataStructureModel
@@ -80,7 +80,7 @@ app.views.ControlContainer = Backbone.View.extend({
 	recenterCanvas: function () {
 		this.dataStructureView.recenterCanvas();
 	},
-	resetLinkedList: function() {
+	resetStructure: function() {
 		this.dataStructureModel.reset();
 		this.dataStructureView.render();
 	}
