@@ -14,6 +14,7 @@ var styles = {
 	specialPositionPointerOffset: 100
 };
 
+// The view used to display linked list models
 app.views.LinkedList = app.views.DataStructure.extend({
 	// Draw the text label containing the value for this particular node
 	drawNodeElem: function (node, nodeX, nodeY, nodeElem, nodeClasses) {

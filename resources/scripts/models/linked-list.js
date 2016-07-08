@@ -1,10 +1,13 @@
 (function () {
 
-
+// The model representing a node in a linked list
 app.models.LinkedListNode = Backbone.Model.extend({
 	defaults: {
+		// A reference to the next node in the containing list
 		next: null,
+		// The numeric element value of the node
 		elem: null,
+		// Indicates if the node was deleted/freed
 		freed: false
 	},
 	idAttribute: 'elem',
@@ -13,10 +16,12 @@ app.models.LinkedListNode = Backbone.Model.extend({
 	}
 });
 
+// The collection for creating an ordered sequence to store linked list nodes
 var NodeCollection = Backbone.Collection.extend({
 	model: app.models.LinkedListNode,
 });
 
+// The model used to create and manipulate a linked list structure
 app.models.LinkedList = Backbone.Model.extend({
 	defaults: {
 		front: null,
@@ -25,6 +30,9 @@ app.models.LinkedList = Backbone.Model.extend({
 		p: null
 	},
 	initialize: function () {
+		// Store a collection of all nodes that are or used to be apart of the
+		// list (including nodes reachable from Front, as well as those that are
+		// not)
 		this.set('nodes', new NodeCollection());
 	},
 
@@ -207,6 +215,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		return state;
 	},
 
+	// Update the model to reflect the given state object
 	setState: function (state) {
 		var nodes = this.get('nodes');
 		// Empty the node collection before pushing new nodes
@@ -243,6 +252,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		});
 	},
 
+	// Reset the list model to the default list (used to also initialize app)
 	reset: function () {
 		this.setState({
 			front: 24,

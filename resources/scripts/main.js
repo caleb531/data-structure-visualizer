@@ -1,6 +1,8 @@
 (function () {
 
-app.views.ControlContainer = Backbone.View.extend({
+// The controller view which watches for interaction with UI controls and
+// updates models/views according to values changed
+app.views.Controller = Backbone.View.extend({
 	events: {
 		'change .data-structure-options': 'setDataStructure',
 		'click .execute': 'executeAction',
@@ -11,7 +13,7 @@ app.views.ControlContainer = Backbone.View.extend({
 	},
 	initialize: function () {
 		this.setMenuOptions('.data-structure-options',
-			app.views.ControlContainer.structureList);
+			app.views.Controller.structureList);
 		this.setDataStructure();
 		// stateStack saves the state of the data structure at each step
 		this.stateStack = [];
@@ -91,7 +93,7 @@ app.views.ControlContainer = Backbone.View.extend({
 	]
 });
 
-var controlContainerView = new app.views.ControlContainer({
+var controllerView = new app.views.Controller({
 	el: $('#controls')[0]
 });
 
