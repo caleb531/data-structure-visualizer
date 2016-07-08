@@ -317,36 +317,6 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		this.drawReachableNodes();
 		this.drawUnreachableNodes();
 		this.drawSpecialPositionPointers();
-	},
-	// Visually flash "next" pointers that have changed according to the given
-	// diff between two list states
-	applyDiff: function (stateDiff) {
-		var $nodeElems = $('.node-elem');
-		// Loop through each node elem in the diff
-		stateDiff.forEach(function (nodeElem) {
-			// Find the SVG element corresponding to the numeric node element
-			$nodeElems.each(function (i, nodeElemSVGElem) {
-				var $nodeElemSVGElem = $(nodeElemSVGElem);
-				// If a corresponding SVG element was found
-				if (parseInt($nodeElemSVGElem.text(), 10) === nodeElem) {
-					// Add a class to its "next" pointer body to flash it (only
-					// for unreachable nodes; only unreachable nodes will have a
-					// .pointer-elem SVG element)
-					var $nodeNextBodySVGElem = $nodeElemSVGElem
-						.next('.pointer-body');
-					var $nodeNextElemSVGElem = $nodeNextBodySVGElem
-						.next('.pointer-elem');
-					// If node has .pointer-elem SVG element
-					if ($nodeNextElemSVGElem.length !== 0) {
-						// Flash it
-						$nodeNextBodySVGElem.addClass('pointer-flash');
-						setTimeout(function () {
-							$nodeNextBodySVGElem.removeClass('pointer-flash');
-						}, 500);
-					}
-				}
-			});
-		});
 	}
 }, {
 	// Options to display for lvalue dropdown control on the left

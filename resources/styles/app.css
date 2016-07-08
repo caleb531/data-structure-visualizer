@@ -62,23 +62,6 @@
 .pointer-body.unreachable {
 	fill: #ddd;
 }
-.pointer-body.unreachable.pointer-flash {
-	fill: #fc0;
-	stroke: #f63;
-}
-.pointer-body.unreachable.pointer-flash + .pointer-elem {
-	fill: #c30;
-}
-/* Create an instantaneous fade-in with a gradual fade-out */
-.pointer-body.unreachable,
-.pointer-body.unreachable + .pointer-elem {
-	transition: all 500ms ease-in-out;
-}
-.pointer-body.unreachable.pointer-flash,
-.pointer-body.unreachable.pointer-flash + .pointer-elem {
-	transition: none;
-}
-
 
 /* The elem value of a reachable node pointed to by an unreachable node */
 .pointer-label,

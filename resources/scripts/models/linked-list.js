@@ -274,21 +274,6 @@ app.models.LinkedList = Backbone.Model.extend({
 				}
 			]
 		});
-	},
-	// Build an object that represents the "next" pointers that have changed
-	// between two given states
-	getDiff: function (state1, state2) {
-		var nextPointers = {};
-		var stateDiff = [];
-		state1.nodes.forEach(function (node) {
-			nextPointers[node.elem] = node.next;
-		});
-		state2.nodes.forEach(function (node) {
-			if (node.next !== nextPointers[node.elem]) {
-				stateDiff.push(node.elem);
-			}
-		});
-		return stateDiff;
 	}
 });
 
