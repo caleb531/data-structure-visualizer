@@ -26,6 +26,7 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 	initialize: function () {
 		this.set('nodes', new NodeCollection());
+		this.set('elemValues', {});
 	},
 
 	// Trigger a segmentation fault by alerting the user
@@ -73,7 +74,8 @@ app.models.LinkedList = Backbone.Model.extend({
 			return null;
 		} else if (dstNodeId === 'new-node') {
 			var newNode = new app.models.LinkedListNode({
-				elem: prompt('Enter a new value for this node')
+				//elem: prompt('Enter a new value for this node')
+				elem: this.getNewElemValue()
 			});
 
 			this.get('nodes').add(newNode);
@@ -94,6 +96,48 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 
 	},
+
+	getNewElemValue: function() {
+		var stop = false;
+		var changedPromptMessage = false;
+		var promptMessage = 'Enter a new value for this node';
+		var value = 1;
+
+		while(!stop) {
+			value = prompt(promptMessage);
+
+			//is the given value valid?
+			if(value !== null && this.isInt(value) && parseInt(value) > parseInt(-1) && this.elemValueIsUnique(value)) {
+				stop = true;
+				return value;
+			}
+			else if(!changedPromptMessage) {
+				promptMessage = "Please enter a valid value (meaning: don't repeat values, and use a postive integer) for this node";
+				changedPromptMessage = true;
+			}
+		}
+
+		return value;
+	},
+
+	isInt: function(value) {
+	  if (isNaN(value)) {
+	    return false;
+	  }
+	  var x = parseFloat(value);
+	  return (x | 0) === x;
+  },
+
+	elemValueIsUnique: function(value) {
+		var isUnique = !(this.get('elemValues').hasOwnProperty(value));
+
+		if(isUnique) {
+			this.get('elemValues')[parseInt(value)] = true;
+		}
+
+		return isUnique;
+	},
+
 
 	//Super simple implementation. This'll be as fast as a optimal solution, but it'll
 	///use up a wee bit of memory, whereas optimal solutions won't.
@@ -241,6 +285,8 @@ app.models.LinkedList = Backbone.Model.extend({
 				node.set('next', nodes.get(nextElem));
 			}
 		});
+
+		model.set('elemValues', JSON.parse(JSON.stringify(this.get('elemValues')))); //does this work?
 	},
 
 	reset: function () {
@@ -263,7 +309,11 @@ app.models.LinkedList = Backbone.Model.extend({
 					next: null
 				}
 			]
-		});
+	});
+
+	this.get('elemValues')['24'] = true;
+	this.get('elemValues')['42'] = true;
+	this.get('elemValues')['99'] = true;
 	}
 });
 
