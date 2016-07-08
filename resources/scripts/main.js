@@ -44,6 +44,15 @@ app.views.Controller = Backbone.View.extend({
 		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
 		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
 	},
+	renderStructure: function () {
+		this.dataStructureView.render();
+		var currentState = this.dataStructureModel.getState();
+		var lastState = this.stateStack[this.stateStack.length - 1];
+		if (lastState) {
+			var stateDiff = this.dataStructureModel.getDiff(currentState, lastState);
+			this.dataStructureView.applyDiff(stateDiff);
+		}
+	},
 	changeAction: function () {
 		// Disable source pointer dropdown if delete is selected
 		var action = this.$el.find('.action-options').val();
@@ -62,18 +71,18 @@ app.views.Controller = Backbone.View.extend({
 			if (status === 'undo') {
 				this.undoAction();
 			} else {
-				this.dataStructureView.render();
+				this.renderStructure();
 			}
 		} else if (action === 'delete') {
 			this.dataStructureModel.deleteNode(dstNodeId);
-			this.dataStructureView.render();
+			this.renderStructure();
 		}
 	},
 	undoAction: function () {
 		var state = this.stateStack.pop();
 		if (state) {
 			this.dataStructureModel.setState(state);
-			this.dataStructureView.render();
+			this.renderStructure();
 		} else {
 			alert('Nothing more to undo!');
 		}
@@ -84,7 +93,7 @@ app.views.Controller = Backbone.View.extend({
 	},
 	resetStructure: function() {
 		this.dataStructureModel.reset();
-		this.dataStructureView.render();
+		this.renderStructure();
 	}
 }, {
 	// Options to display in list of available data structures in UI
