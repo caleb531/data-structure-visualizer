@@ -81,7 +81,8 @@ app.models.LinkedList = Backbone.Model.extend({
 			return null;
 		} else if (dstNodeId === 'new-node') {
 			var newNode = new app.models.LinkedListNode({
-				elem: prompt('Enter a new value for this node')
+				//elem: prompt('Enter a new value for this node')
+				elem: this.getNewElemValue()
 			});
 
 			this.get('nodes').add(newNode);
@@ -102,6 +103,39 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 
 	},
+
+	getNewElemValue: function() {
+		var stop = false;
+		var promptMessage = 'Please enter a value for this new node';
+		var value = 1;
+
+		while (!stop) {
+			value = prompt(promptMessage);
+
+			if (value === null) {
+				// Prevent user from cancelling prompt; we need a value to
+				// return
+				promptMessage = 'Please enter a value before continuing';
+			} else if (value.match(/^[1-9][0-9]+$/i) === null) {
+				// Require a positive integer value
+				promptMessage = 'Please enter a positive integer value';
+			} else if (!this.elemValueIsUnique(value)) {
+				// Require a value that is not used by another node
+				promptMessage = 'Please enter a value that is not already used by another node';
+			} else {
+				// Otherwise, assume value is valid at this point
+				return parseInt(value);
+			}
+
+		}
+
+		return value;
+	},
+
+	elemValueIsUnique: function(value) {
+		return (this.get('nodes').get(parseInt(value)) === undefined);
+	},
+
 
 	//Super simple implementation. This'll be as fast as a optimal solution, but it'll
 	///use up a wee bit of memory, whereas optimal solutions won't.
@@ -250,6 +284,7 @@ app.models.LinkedList = Backbone.Model.extend({
 				node.set('next', nodes.get(nextElem));
 			}
 		});
+
 	},
 
 	// Reset the list model to the default list (used to also initialize app)
@@ -274,6 +309,7 @@ app.models.LinkedList = Backbone.Model.extend({
 				}
 			]
 		});
+
 	}
 });
 
