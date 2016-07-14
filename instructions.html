@@ -28,7 +28,7 @@
 	<p>Why only these? Well, let’s imagine you’re writing a deleteNode function for a LinkedList class in C++. How would you handle the case of deleting an arbitary node in the middle of a large linked list? Pretty straightfoward, right? You’d need to first find the node right before the node you’d like to delete (let’s call it prev), carefully keep a pointer to prev→Next→Next handy, and then delete prev→Next. Finally, you’d reassign prev→Next to the stored reference to prev→Next→Next – and then you’d have deleted your node, while preserving the chain of Next pointers in your linked list.</p>
 	<p>This process can be accomplished in much that same way in the webapp. To begin, you’d first assign P to the prev node (prev is again the node right before the one you’d like to delete). Next, assign T = P→Next, followed immediately by reassigning T to  T→Next. Now T should be pointing at the node immediately following the node you’d like to delete. Next, delete P→Next. You’ll notice that P→Next is now pointing at a node with a question mark in it (meaning its now a dangling pointer), and that T, along with all of the nodes after T, are now unreachable. To remedy this unfortunate situation, we can reassign P→Next to T. This final assignment will again make the nodes from T and beyond reachable, as hoped for.</p>
 
-	<strong>Reachable\Unreachable nodes</strong>
+	<strong>Reachable/Unreachable nodes</strong>
 
 	<ul>
 	<li><p><strong>What do these even mean?</strong>
@@ -137,7 +137,7 @@
 			 <li>and finally select the destination node from the dropdown box to the right of the ‘=’ dropdown box.</li>
 		 </ul>
 	 </li>
-	 <li>You can only assign new values to the pointers in the dropbox to the left of the equal sign. This means you may need to reposition the T and\or P pointers in order to access a node.</li>
+	 <li>You can only assign new values to the pointers in the dropbox to the left of the equal sign. This means you may need to reposition the T and/or P pointers in order to access a node.</li>
  </ul>
 
  <p><strong>Deletion</strong></p>
