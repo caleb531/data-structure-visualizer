@@ -17,23 +17,22 @@
 
 	<b>What is this app about, anyways?</b>
 
-	<p>It’s basically a sandbox for seeing what happens to a linked list by changing some of the pointers in that list, one pointer at a time. By change, I mean three things:
+	<p>It’s basically a sandbox for seeing what happens to a linked list by changing some of the pointers in that list, one pointer at a time. By change, I mean two things:
 		<ol>
-			<li>You can change which node a pointer points to (aka assignment),</li>
+			<li>You can change which node a pointer points to (aka assignment; this includes assigning a pointer to a new node or NULL),</li>
 			<li>You can delete the node (therby leaving you with a dangling pointer),</li>
-			<li>Or you can redirect the pointer to a brand new node.</li>
 		</ol>
 	</p>
 
-	<p>However, do not that you cannot just change any node in the linked list. You can only change these pointers: front, rear, T, P, front→next, rear→next, T→next, and P→next.</p>
-	<p>Why only these? Well, let’s imagine you’re writing a deleteNode function for a LinkedList class in C++. How would you handle the case of deleting an arbitary node in the middle of a large linked list? Pretty straightfoward, right? You’d need to first find the node right before the node you’d like to delete (let’s call it prev), carefully keep a pointer to prev→next→next handy, and then delete prev→next. Finally, you’d reassign prev→next to the stored reference to prev→next→next – and then you’d have deleted your node, while preserving the chain of next pointers in your linked list.</p>
-	<p>This process can be accomplished in much that same way in the webapp. To begin, you’d first assign P to the prev node (prev is again the node right before the one you’d like to delete). Next, assign T = P→next, followed immediately by reassigning T to  T→next. Now T should be pointing at the node immediately following the node you’d like to delete. Next, delete P→next. You’ll notice that P→next is now pointing at a node with a question mark in it (meaning its now a dangling pointer), and that T, along with all of the nodes after T, are now unreachable. To remedy this unfortunate situation, we can reassign P→next to T. This final assignment will again make the nodes from T and beyond reachable, as hoped for.</p>
+	<p>However, do note that you cannot just change any node in the linked list. You can only change these pointers: Front, Rear, T, P, Front→Next, Rear→Next, T→Next, and P→Next.</p>
+	<p>Why only these? Well, let’s imagine you’re writing a deleteNode function for a LinkedList class in C++. How would you handle the case of deleting an arbitary node in the middle of a large linked list? Pretty straightfoward, right? You’d need to first find the node right before the node you’d like to delete (let’s call it prev), carefully keep a pointer to prev→Next→Next handy, and then delete prev→Next. Finally, you’d reassign prev→Next to the stored reference to prev→Next→Next – and then you’d have deleted your node, while preserving the chain of Next pointers in your linked list.</p>
+	<p>This process can be accomplished in much that same way in the webapp. To begin, you’d first assign P to the prev node (prev is again the node right before the one you’d like to delete). Next, assign T = P→Next, followed immediately by reassigning T to  T→Next. Now T should be pointing at the node immediately following the node you’d like to delete. Next, delete P→Next. You’ll notice that P→Next is now pointing at a node with a question mark in it (meaning its now a dangling pointer), and that T, along with all of the nodes after T, are now unreachable. To remedy this unfortunate situation, we can reassign P→Next to T. This final assignment will again make the nodes from T and beyond reachable, as hoped for.</p>
 
 	<b>Reachable\Unreachable nodes</b>
 
 	<ul>
 	<li><p><b>What do these even mean?</b>
-		<p>By reachable nodes, I mean all of the nodes that can be ‘reached’ by first begining at the front node, and then successively following all of the next pointers until you reach a next pointer whose value is null. The unreachable nodes are simply all of the remaining nodes; ie, those nodes which are not reachable.</p>
+		<p>By reachable nodes, I mean all of the nodes that can be ‘reached’ by first begining at the Front node, and then successively following all of the next pointers until you reach a next pointer whose value is NULL. The unreachable nodes are simply all of the remaining nodes; i.e., those nodes which are not reachable.</p>
 	</p>
 	</li>
 
@@ -46,7 +45,7 @@
 	<li>
 	<p><b>What about unreachable nodes?</b>
 		<p><img src="resources/images/reachable_vs_unreachable_nodes.png" alt="Unreachable Nodes">
-			<p>The gray nodes (with values 99 and 74) are examples of unreachable nodes, in contract to the reachable nodes 24 and 42.</p>
+			<p>The gray nodes (with values 99 and 74) are examples of unreachable nodes, in contrast to the reachable nodes 24 and 42.</p>
 		</p>
 	</p>
 	</li>
@@ -59,7 +58,7 @@
 				<p>
 				There are basically three different types of pointers in the webapp:
 				<ol>
-					<li>The special pointers (front, rear, P, and T),</li>
+					<li>The position pointers (Front, Rear, P, and T),</li>
 					<li>Next pointers of reachable nodes,</li>
 					<li>Finally, the next pointers of the unreachable nodes.</li>
 				</ol>
@@ -70,20 +69,20 @@
 
 		 <ul>
 		 	<li>
-				<p><b>Special Pointers (reminder: special pointers = front, rear, T, and P)</b></p>
-				<p>The special pointers can appear in two basic flavors in the webapp, depending upon if the pointer in question is null or not.</p>
+				<p><b>Position Pointers (reminder: position pointers = Front, Rear, T, and P)</b></p>
+				<p>The position pointers can appear in two basic flavors in the webapp, depending upon if the pointer in question is NULL or not.</p>
 				<ul>
 					<li>
 						<p>
-							<p><b>Null special pointer</b></p>
-							<p>For example, here’s how the rear pointer appears when set to NULL:</p>
+							<p><b>NULL position pointer</b></p>
+							<p>For example, here’s how the Rear pointer appears when set to NULL:</p>
 							<p><img src="resources/images/zoomed_out_rear_null.png" alt="Rear NULL"></p>
 						</p>
 					</li>
 					<li>
-						<p><b>Non-Null special pointer</b></p>
-						<p>To illustrate the general principle, here’s how the rear pointer appears when pointing at a reachable node: </p>
-						<p><img src="resources/images/labeled_pointer.png" alt="Non null special pointer"></p>
+						<p><b>Non-NULL position pointer</b></p>
+						<p>To illustrate the general principle, here’s how the Rear pointer appears when pointing at a reachable node: </p>
+						<p><img src="resources/images/labeled_pointer.png" alt="Non null position pointer"></p>
 					</li>
 				</ul>
 			</li>
@@ -92,13 +91,13 @@
 			<p><b>Next pointers of reachable nodes</b></p>
 			<ul>
 				<li>
-					<p><b>Null</b></p>
-					<p>If the next pointer for a reachable node is null, then you’ll see this on the right side of the node’s box:</p>
+					<p><b>NULL</b></p>
+					<p>If the next pointer for a reachable node is NULL, then you’ll see this on the right side of the node’s box:</p>
 					<p><img src="resources/images/reachable_node_null.png" alt="Reachable Next NULL"></p>
 				</li>
 				<li>
-					<p><b>Not Null</b></p>
-					<p>If the next pointer for a reachable node is not null, then you’ll see this on the right side of the node’s box:</p>
+					<p><b>Not NULL</b></p>
+					<p>If the next pointer for a reachable node is not NULL, then you’ll see this on the right side of the node’s box:</p>
 					<p><img src="resources/images/unlabeled_pointer.png" alt="Reachable Next Not NULL"></p>
 				</li>
 			</ul>
@@ -108,12 +107,12 @@
 			<p><b>Next pointers for unreachable nodes</b></p>
 			<ul>
 				<li>
-					<p><b>Null</b></p>
+					<p><b>NULL</b></p>
 					<p>Looks like the below:</p>
 					<p><img src="resources/images/close_up_unreachable_next_null.png" alt="Unreachable Next NULL"></p>
 				</li>
 				<li>
-					<p><b>Not Null</b></p>
+					<p><b>Not NULL</b></p>
 					<p>This guy is a little different from the reachable next case. Namely, there is no longer a line connecting the source pointer (next) to the destination node. Instead, you’ll see the elem value of the node being pointed at inside the source pointer circle.</p>
 					<p><img src="resources/images/semi_zoomed_out_unreachable_next.png" alt="Unreachable Next Not NULL"></p>
 				</li>
@@ -123,16 +122,16 @@
 
  </ul>
 
-	<p>Some <b>notes concerning the four special pointers:</b></p>
+	<p>Some <b>notes concerning the four position pointers:</b></p>
 	<ul>
-		<li>The <b>front pointer</b> is intended to point at the first node in the linked list, but note that the 	app will not automatically make the first node in the list the front pointer for you.</li>
-		<li>The <b>rear pointer</b> is intended to point at the last node in the linked list, but, like the front 	pointer, the app will not do this for you.</li>
+		<li>The <b>Front pointer</b> is intended to point at the first node in the linked list, but note that the 	app will not automatically make the first node in the list the Front pointer for you.</li>
+		<li>The <b>Rear pointer</b> is intended to point at the last node in the linked list, but, like the Front 	pointer, the app will not do this for you.</li>
 		<li>The <b>T and P pointers</b> are really just general purpose pointers. They aren’t intented to point at any node in particular, they’re meant to point at any node you’d like them to!</li>
 	</ul>
 
  <p><b>Assignment</b></p>
  <ul>
-	 <li>To redirect where any pointer in the center-left dropbox (in the topmost menu under 	‘Structures’) points to, just select that pointer from the left most dropbox, then
+	 <li>To redirect where any pointer in the center-left dropbox (in the topmost menu under ‘Structures’) points to, just select that pointer from the left most dropbox, then
 		 <ul>
 			 <li>select ‘=’ from the dropdown immediately to the right</li>
 			 <li>and finally select the destination node from the dropdown box to the right of the ‘=’ dropdown box.</li>
