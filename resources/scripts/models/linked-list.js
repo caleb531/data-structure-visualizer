@@ -50,7 +50,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		var dstNode = this.getDstNode(dstNodeId);
 
 		// Check for segmentation faults
-		if (dstNode !== null && dstNode.get('freed') === true) {
+		if ((dstNode !== null && dstNode.get('freed') === true) || (dstNode === null && dstNodeId.indexOf('-next') !== -1)) {
 			this.triggerSegfault();
 			return;
 		}
