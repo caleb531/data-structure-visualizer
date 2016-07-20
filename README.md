@@ -1,4 +1,4 @@
-# Structures
+# Data Structure Visualizer
 
 *Copyright 2016 Caleb Evans, Kyle Gullicksen*
 
