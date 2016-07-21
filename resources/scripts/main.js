@@ -3,6 +3,10 @@
 // The controller view which watches for interaction with UI controls and
 // updates models/views according to values changed
 app.views.Controller = Backbone.View.extend({
+	constants: {
+		STRUCTURES_STATE: 'STRUCTURES_STATE',
+		STATE_STACK: 'STATE_STACK'
+	},
 	events: {
 		'change .data-structure-options': 'setDataStructure',
 		'click .execute': 'executeAction',
@@ -16,7 +20,15 @@ app.views.Controller = Backbone.View.extend({
 			app.views.Controller.structureList);
 		this.setDataStructure();
 		// stateStack saves the state of the data structure at each step
+		this.setStateStack();
+	},
+	setStateStack: function() {
 		this.stateStack = [];
+		var jsonifiedStateStack = localStorage.getItem(this.constants.STATE_STACK);
+
+		if(jsonifiedStateStack !== null) {
+			this.stateStack = JSON.parse(jsonifiedStateStack);
+		}
 	},
 	setMenuOptions: function (menuSelector, menuOptions) {
 		var $menu = this.$el.find(menuSelector);
@@ -35,15 +47,32 @@ app.views.Controller = Backbone.View.extend({
 		var DataStructureView = app.views[dataStructureName];
 		// Variables pointing to instances of the above constructors
 		this.dataStructureModel = new DataStructureModel();
-		this.dataStructureModel.reset();
+
+		this.initializeDataStructure();
+
 		this.dataStructureView = new DataStructureView({
 			el: $('#canvas-container')[0],
 			model: this.dataStructureModel
 		});
+
 		// Update dropdown menus with values specific to chosen data structure
 		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
 		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
 	},
+
+	//try to restore a saved state, else, set the data structure model to
+	//its default settings.
+	initializeDataStructure: function() {
+		var jsonifiedState = localStorage.getItem(this.constants.STRUCTURES_STATE);
+
+		if(jsonifiedState !== null) {
+			this.dataStructureModel.setState(JSON.parse(jsonifiedState));
+		}
+		else {
+			this.dataStructureModel.reset();
+		}
+	},
+
 	changeAction: function () {
 		// Disable source pointer dropdown if delete is selected
 		var action = this.$el.find('.action-options').val();
@@ -63,10 +92,12 @@ app.views.Controller = Backbone.View.extend({
 				this.undoAction();
 			} else {
 				this.dataStructureView.render();
+				this.saveSessionToLocalStorage(this.dataStructureModel.getState());
 			}
 		} else if (action === 'delete') {
 			this.dataStructureModel.deleteNode(dstNodeId);
 			this.dataStructureView.render();
+			this.saveSessionToLocalStorage(this.dataStructureModel.getState());
 		}
 	},
 	undoAction: function () {
@@ -74,6 +105,7 @@ app.views.Controller = Backbone.View.extend({
 		if (state) {
 			this.dataStructureModel.setState(state);
 			this.dataStructureView.render();
+			this.saveSessionToLocalStorage(state);
 		} else {
 			alert('Nothing more to undo!');
 		}
@@ -85,6 +117,14 @@ app.views.Controller = Backbone.View.extend({
 	resetStructure: function() {
 		this.dataStructureModel.reset();
 		this.dataStructureView.render();
+		this.saveSessionToLocalStorage(this.dataStructureModel.getState());
+	},
+	//Saves the given state to the user's machine. This in part enables the state
+	//of the structure before viewing the instructions to be the same as the state
+	//after viewing the instructions.
+	saveSessionToLocalStorage: function(state) {
+		localStorage.setItem(this.constants.STRUCTURES_STATE, JSON.stringify(state));
+		localStorage.setItem(this.constants.STATE_STACK, JSON.stringify(this.stateStack));
 	}
 }, {
 	// Options to display in list of available data structures in UI
