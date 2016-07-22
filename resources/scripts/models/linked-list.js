@@ -116,7 +116,7 @@ app.models.LinkedList = Backbone.Model.extend({
 				// Prevent user from cancelling prompt; we need a value to
 				// return
 				promptMessage = 'Please enter a value before continuing';
-			} else if (value.match(/^[1-9][0-9]+$/i) === null) {
+			} else if (value.match(/^[1-9][0-9]*$/i) === null) {
 				// Require a positive integer value
 				promptMessage = 'Please enter a positive integer value';
 			} else if (!this.elemValueIsUnique(value)) {
