@@ -4,8 +4,8 @@
 // updates models/views according to values changed
 app.views.Controller = Backbone.View.extend({
 	constants: {
-		STRUCTURES_STATE: 'STRUCTURES_STATE',
-		STATE_STACK: 'STATE_STACK'
+		LOCAL_STORAGE_KEY: 'data-structure-visualizer',
+		MAX_SAVED_STATES: 100
 	},
 	events: {
 		'change .data-structure-options': 'setDataStructure',
@@ -15,13 +15,94 @@ app.views.Controller = Backbone.View.extend({
 		'click .undo': 'undoAction',
 		'click .recenter': 'recenterCanvas'
 	},
+
 	initialize: function () {
 		this.setMenuOptions('.data-structure-options',
 			app.views.Controller.structureList);
-		this.setDataStructure();
-		// stateStack saves the state of the data structure at each step
-		this.setStateStack();
+
+		//is there a saved app state in local storage?
+		var savedAppStateJson = localStorage.getItem(this.constants.LOCAL_STORAGE_KEY);
+
+		if(savedAppStateJson == null || savedAppStateJson === undefined) {
+			this.setDefaultDataStructure();
+			this.stateStack = [];
+		}
+		else {
+			this.restoreAppState(savedAppStateJson);
+		}
 	},
+	setDefaultDataStructure: function () {
+		var dataStructureName = this.$el.find('.data-structure-options').val();
+		// Variables pointing to constructors
+		var DataStructureModel = app.models[dataStructureName];
+		var DataStructureView = app.views[dataStructureName];
+		// Variables pointing to instances of the above constructors
+		this.dataStructureModel = new DataStructureModel();
+		this.dataStructureModel.reset();
+		this.dataStructureView = new DataStructureView({
+			el: $('#canvas-container')[0],
+			model: this.dataStructureModel
+		});
+
+		// Update dropdown menus with values specific to chosen data structure
+		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
+		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
+	},
+	restoreAppState: function(savedAppStateJson) {
+		var savedAppState = JSON.parse(savedAppStateJson);
+
+		// Variables pointing to constructors
+		var DataStructureModel = app.models[savedAppState.menu.structureName];
+		var DataStructureView = app.views[savedAppState.menu.structureName];
+		// Variables pointing to instances of the above constructors
+		this.dataStructureModel = new DataStructureModel();
+
+		this.dataStructureModel.setState(savedAppState.currentStructureState);
+
+		this.dataStructureView = new DataStructureView({
+			el: $('#canvas-container')[0],
+			model: this.dataStructureModel
+		});
+
+		// Update dropdown menus with values specific to chosen data structure
+		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
+		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
+
+		//restore a reasonable number of states to this state stack
+		this.stateStack = this.lastN(savedAppState.structureStateStack, this.constants.MAX_SAVED_STATES);
+
+		//restore the menu
+		this.$el.find('.src-pointer-options').val(savedAppState.menu.srcPointer.val);
+		this.$el.find('.dst-node-options').val(savedAppState.menu.dstNode.val);
+		this.$el.find('.action-options').val(savedAppState.menu.actionOptionsVal);
+		this.$el.find('.data-structure-options').val(savedAppState.menu.structureName);
+
+		if (savedAppState.menu.srcPointer.disabled) {
+			this.$el.find('.src-pointer-options').prop('disabled', true);
+		}
+
+		this.dataStructureView.render();
+
+	 },
+	 //where n is 1 based
+	 lastN: function(array, n) {
+	 	if (array.length <= n) {
+			return array;
+		}
+		else {
+			var index = array.length - n;
+			var items = [];
+
+			while(index <= n) {
+				if(array[index] == null || array[index] === undefined)
+					continue;
+				items.push(array[index]);
+				index = index + 1;
+			}
+
+			return items;
+		}
+	 },
 	setStateStack: function() {
 		this.stateStack = [];
 		var jsonifiedStateStack = localStorage.getItem(this.constants.STATE_STACK);
@@ -40,45 +121,14 @@ app.views.Controller = Backbone.View.extend({
 				.appendTo($menu);
 		});
 	},
-	setDataStructure: function () {
-		var dataStructureName = this.$el.find('.data-structure-options').val();
-		// Variables pointing to constructors
-		var DataStructureModel = app.models[dataStructureName];
-		var DataStructureView = app.views[dataStructureName];
-		// Variables pointing to instances of the above constructors
-		this.dataStructureModel = new DataStructureModel();
-
-		this.initializeDataStructure();
-
-		this.dataStructureView = new DataStructureView({
-			el: $('#canvas-container')[0],
-			model: this.dataStructureModel
-		});
-
-		// Update dropdown menus with values specific to chosen data structure
-		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
-		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
-	},
-
-	//try to restore a saved state, else, set the data structure model to
-	//its default settings.
-	initializeDataStructure: function() {
-		var jsonifiedState = localStorage.getItem(this.constants.STRUCTURES_STATE);
-
-		if(jsonifiedState !== null) {
-			this.dataStructureModel.setState(JSON.parse(jsonifiedState));
-		}
-		else {
-			this.dataStructureModel.reset();
-		}
-	},
-
 	changeAction: function () {
 		// Disable source pointer dropdown if delete is selected
 		var action = this.$el.find('.action-options').val();
 		this.$el
 			.find('.src-pointer-options')
 			.prop('disabled', (action === 'delete'));
+
+		this.saveSessionToLocalStorage(this.dataStructureModel.getState());
 	},
 	executeAction: function () {
 		var action = this.$el.find('.action-options').val();
@@ -123,8 +173,23 @@ app.views.Controller = Backbone.View.extend({
 	//of the structure before viewing the instructions to be the same as the state
 	//after viewing the instructions.
 	saveSessionToLocalStorage: function(state) {
-		localStorage.setItem(this.constants.STRUCTURES_STATE, JSON.stringify(state));
-		localStorage.setItem(this.constants.STATE_STACK, JSON.stringify(this.stateStack));
+		var appState = {
+			currentStructureState: state,
+			structureStateStack: this.lastN(this.stateStack, this.constants.MAX_SAVED_STATES),
+			menu: {
+				srcPointer: {
+					val: this.$el.find('.src-pointer-options').val(),
+					disabled: this.$el.find('.src-pointer-options').prop('disabled')
+				},
+				dstNode: {
+					val: this.$el.find('.dst-node-options').val()
+				},
+				actionOptionsVal: this.$el.find('.action-options').val(),
+				structureName: this.$el.find('.data-structure-options').val()
+			}
+		};
+
+		localStorage.setItem(this.constants.LOCAL_STORAGE_KEY, JSON.stringify(appState));
 	}
 }, {
 	// Options to display in list of available data structures in UI
