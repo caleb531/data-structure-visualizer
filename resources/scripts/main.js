@@ -3,12 +3,9 @@
 // The controller view which watches for interaction with UI controls and
 // updates models/views according to values changed
 app.views.Controller = Backbone.View.extend({
-	constants: {
-		LOCAL_STORAGE_KEY: 'data-structure-visualizer',
-		MAX_SAVED_STATES: 100
-	},
+	appInitialized: false,
 	events: {
-		'change .data-structure-options': 'setDataStructure',
+		'change .data-structure-options': 'switchStructure',
 		'click .execute': 'executeAction',
 		'click .reset': 'resetStructure',
 		'change .action-options': 'changeAction',
@@ -19,97 +16,52 @@ app.views.Controller = Backbone.View.extend({
 	initialize: function () {
 		this.setMenuOptions('.data-structure-options',
 			app.views.Controller.structureList);
-
-		//is there a saved app state in local storage?
-		var savedAppStateJson = localStorage.getItem(this.constants.LOCAL_STORAGE_KEY);
-
-		if(savedAppStateJson == null || savedAppStateJson === undefined) {
-			this.setDefaultDataStructure();
-			this.stateStack = [];
-		}
-		else {
-			this.restoreAppState(savedAppStateJson);
+		this.restoreAppState();
+	},
+	restoreAppState: function () {
+		var appStateStr = localStorage.getItem(this.constructor.storageKey);
+		if (appStateStr !== null) {
+			var appState = JSON.parse(appStateStr);
+			this.structureStateStack = appState.structureStateStack;
+			this.setStructure(
+				appState.controls['data-structure-options'],
+				appState.currentStructureState);
+			this.restoreControlValues(appState.controls);
+		} else {
+			this.structureStateStack = [];
+			this.setStructure(this.constructor.defaultStructure);
 		}
 	},
-	setDefaultDataStructure: function () {
-		var dataStructureName = this.$el.find('.data-structure-options').val();
-		// Variables pointing to constructors
-		var DataStructureModel = app.models[dataStructureName];
-		var DataStructureView = app.views[dataStructureName];
-		// Variables pointing to instances of the above constructors
-		this.dataStructureModel = new DataStructureModel();
-		this.dataStructureModel.reset();
-		this.dataStructureView = new DataStructureView({
-			el: $('#canvas-container')[0],
-			model: this.dataStructureModel
+	restoreControlValues: function (controls) {
+		this.$el.children('select').each(function () {
+			var $select = $(this);
+			$select.val(controls[$select.prop('class')]);
 		});
-
-		// Update dropdown menus with values specific to chosen data structure
-		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
-		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
 	},
-	restoreAppState: function(savedAppStateJson) {
-		var savedAppState = JSON.parse(savedAppStateJson);
-
+	setStructure: function (structureName, structureState) {
 		// Variables pointing to constructors
-		var DataStructureModel = app.models[savedAppState.menu.structureName];
-		var DataStructureView = app.views[savedAppState.menu.structureName];
+		var StructureModel = app.models[structureName];
+		var StructureView = app.views[structureName];
 		// Variables pointing to instances of the above constructors
-		this.dataStructureModel = new DataStructureModel();
-
-		this.dataStructureModel.setState(savedAppState.currentStructureState);
-
-		this.dataStructureView = new DataStructureView({
+		this.structureModel = new StructureModel();
+		if (structureState) {
+			this.structureModel.setState(structureState);
+		} else {
+			this.structureModel.reset();
+		}
+		this.structureView = new StructureView({
 			el: $('#canvas-container')[0],
-			model: this.dataStructureModel
+			model: this.structureModel
 		});
-
+		this.structureView.render();
 		// Update dropdown menus with values specific to chosen data structure
-		this.setMenuOptions('.src-pointer-options', DataStructureView.srcPointerOptions);
-		this.setMenuOptions('.dst-node-options', DataStructureView.dstNodeOptions);
-
-		//restore a reasonable number of states to this state stack
-		this.stateStack = this.lastN(savedAppState.structureStateStack, this.constants.MAX_SAVED_STATES);
-
-		//restore the menu
-		this.$el.find('.src-pointer-options').val(savedAppState.menu.srcPointer.val);
-		this.$el.find('.dst-node-options').val(savedAppState.menu.dstNode.val);
-		this.$el.find('.action-options').val(savedAppState.menu.actionOptionsVal);
-		this.$el.find('.data-structure-options').val(savedAppState.menu.structureName);
-
-		if (savedAppState.menu.srcPointer.disabled) {
-			this.$el.find('.src-pointer-options').prop('disabled', true);
-		}
-
-		this.dataStructureView.render();
-
-	 },
-	 //where n is 1 based
-	 lastN: function(array, n) {
-	 	if (array.length <= n) {
-			return array;
-		}
-		else {
-			var index = array.length - n;
-			var items = [];
-
-			while(index <= n) {
-				if(array[index] == null || array[index] === undefined)
-					continue;
-				items.push(array[index]);
-				index = index + 1;
-			}
-
-			return items;
-		}
-	 },
-	setStateStack: function() {
-		this.stateStack = [];
-		var jsonifiedStateStack = localStorage.getItem(this.constants.STATE_STACK);
-
-		if(jsonifiedStateStack !== null) {
-			this.stateStack = JSON.parse(jsonifiedStateStack);
-		}
+		this.setMenuOptions('.src-pointer-options', StructureView.srcPointerOptions);
+		this.setMenuOptions('.dst-node-options', StructureView.dstNodeOptions);
+	},
+	switchStructure: function (event) {
+		this.structureStateStack = [];
+		this.setStructure($(event.target).val());
+		this.saveAppState();
 	},
 	setMenuOptions: function (menuSelector, menuOptions) {
 		var $menu = this.$el.find(menuSelector);
@@ -127,75 +79,74 @@ app.views.Controller = Backbone.View.extend({
 		this.$el
 			.find('.src-pointer-options')
 			.prop('disabled', (action === 'delete'));
-
-		this.saveSessionToLocalStorage(this.dataStructureModel.getState());
 	},
 	executeAction: function () {
 		var action = this.$el.find('.action-options').val();
 		var srcPointerId = this.$el.find('.src-pointer-options').val();
 		var dstNodeId = this.$el.find('.dst-node-options').val();
-		this.stateStack.push(this.dataStructureModel.getState());
+		this.structureStateStack.push(this.structureModel.getState());
 		if (action === 'set') {
-			var status = this.dataStructureModel.setPointer(srcPointerId, dstNodeId);
+			var status = this.structureModel.setPointer(srcPointerId, dstNodeId);
 			// Undo when model reaches impossible state
 			if (status === 'undo') {
 				this.undoAction();
 			} else {
-				this.dataStructureView.render();
-				this.saveSessionToLocalStorage(this.dataStructureModel.getState());
+				this.structureView.render();
+				this.saveAppState();
 			}
 		} else if (action === 'delete') {
-			this.dataStructureModel.deleteNode(dstNodeId);
-			this.dataStructureView.render();
-			this.saveSessionToLocalStorage(this.dataStructureModel.getState());
+			this.structureModel.deleteNode(dstNodeId);
+			this.structureView.render();
+			this.saveAppState();
 		}
 	},
 	undoAction: function () {
-		var state = this.stateStack.pop();
+		var state = this.structureStateStack.pop();
 		if (state) {
-			this.dataStructureModel.setState(state);
-			this.dataStructureView.render();
-			this.saveSessionToLocalStorage(state);
+			this.structureModel.setState(state);
+			this.structureView.render();
+			this.saveAppState();
 		} else {
 			alert('Nothing more to undo!');
 		}
 	},
 	// Recenter canvas translation
 	recenterCanvas: function () {
-		this.dataStructureView.recenterCanvas();
+		this.structureView.recenterCanvas();
 	},
 	resetStructure: function() {
-		this.dataStructureModel.reset();
-		this.dataStructureView.render();
-		this.saveSessionToLocalStorage(this.dataStructureModel.getState());
+		this.structureModel.reset();
+		this.structureView.render();
+		this.saveAppState();
 	},
-	//Saves the given state to the user's machine. This in part enables the state
-	//of the structure before viewing the instructions to be the same as the state
-	//after viewing the instructions.
-	saveSessionToLocalStorage: function(state) {
-		var appState = {
-			currentStructureState: state,
-			structureStateStack: this.lastN(this.stateStack, this.constants.MAX_SAVED_STATES),
-			menu: {
-				srcPointer: {
-					val: this.$el.find('.src-pointer-options').val(),
-					disabled: this.$el.find('.src-pointer-options').prop('disabled')
-				},
-				dstNode: {
-					val: this.$el.find('.dst-node-options').val()
-				},
-				actionOptionsVal: this.$el.find('.action-options').val(),
-				structureName: this.$el.find('.data-structure-options').val()
-			}
-		};
+	// Saves the entire state of the application to the user's machine for
+	// persistence across page loads
+	saveAppState: function() {
 
-		localStorage.setItem(this.constants.LOCAL_STORAGE_KEY, JSON.stringify(appState));
+		var appState = {
+			currentStructureState: this.structureModel.getState(),
+			structureStateStack: this.structureStateStack,
+			controls: {}
+		};
+		// Retrieve values of every dropdown control
+		this.$el.children('select').each(function () {
+			var $select = $(this);
+			appState.controls[$select.prop('class')] = $select.val();
+		});
+		localStorage.setItem(
+			this.constructor.storageKey,
+			JSON.stringify(appState));
 	}
 }, {
-	// Options to display in list of available data structures in UI
+	storageKey: 'data-structure-visualizer',
+	maxStructureStates: 100,
+	// Options to display in list of available data structures in UI; the
+	// 'value' field maps to the exact names of the corresponding model and view
+	// constructors
 	structureList: [
 		{value: 'LinkedList', label: 'Linked List'}
-	]
+	],
+	defaultStructure: 'LinkedList'
 });
 
 var controllerView = new app.views.Controller({

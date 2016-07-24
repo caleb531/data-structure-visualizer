@@ -4,7 +4,6 @@ app.views.DataStructure = Backbone.View.extend({
 	initialize: function () {
 		this.$el.empty();
 		this.canvas = Raphael(this.el, '100%', 340);
-		this.render();
 		// Allow user to pan canvas
 		this.$el.panzoom({
 			disableZoom: true
