@@ -61,7 +61,7 @@ app.views.Controller = Backbone.View.extend({
 		this.setMenuOptions('.src-pointer-options', StructureView.srcPointerOptions);
 		this.setMenuOptions('.dst-node-options', StructureView.dstNodeOptions);
 	},
-	// Switch data structures
+	// Switch to a different data structure to operate on
 	switchStructure: function (event) {
 		// Reset the history
 		this.structureStateStack = [];
