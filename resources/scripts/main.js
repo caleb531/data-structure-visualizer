@@ -64,7 +64,7 @@ app.views.Controller = Backbone.View.extend({
 	// Switch to a different data structure to operate on
 	switchStructure: function (event) {
 		// Reset the history
-		this.structureStateStack = [];
+		this.structureStateStack.length = 0;
 		// Set the data structure using the current value of the Data Structure
 		// dropdown control
 		this.setStructure($(event.target).val());
