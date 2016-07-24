@@ -139,6 +139,7 @@ app.views.Controller = Backbone.View.extend({
 	recenterCanvas: function () {
 		this.structureView.recenterCanvas();
 	},
+	// Reset the data structure to its default state
 	resetStructure: function() {
 		this.structureModel.reset();
 		this.structureView.render();
