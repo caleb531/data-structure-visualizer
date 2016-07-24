@@ -84,6 +84,15 @@ app.views.Controller = Backbone.View.extend({
 				.appendTo($menu);
 		});
 	},
+	// Pushes the given state to the data structure's state stack
+	pushStructureState: function (structureState) {
+		this.structureStateStack.push(structureState);
+		// If the number of states in the stack exceeds the defined cap
+		if (this.structureStateStack.length > this.constructor.maxStructureStates) {
+			// Pop the oldest state (at the beginning of the stack)
+			this.structureStateStack.shift();
+		}
+	},
 	// Change the UI when some actions are selected or not
 	changeAction: function () {
 		// Disable source pointer dropdown if 'delete' is selected
@@ -98,7 +107,7 @@ app.views.Controller = Backbone.View.extend({
 		var srcPointerId = this.$el.find('.src-pointer-options').val();
 		var dstNodeId = this.$el.find('.dst-node-options').val();
 		// Save the data structure's current state (pre-execution)
-		this.structureStateStack.push(this.structureModel.getState());
+		this.pushStructureState(this.structureModel.getState());
 		if (action === 'set') {
 			var status = this.structureModel.setPointer(srcPointerId, dstNodeId);
 			// Undo when model reaches impossible state
@@ -121,7 +130,7 @@ app.views.Controller = Backbone.View.extend({
 			this.structureView.render();
 			this.saveAppState();
 		} else {
-			alert('Nothing more to undo!');
+			alert('Can\'t undo any more!');
 		}
 	},
 	// Recenter canvas translation
