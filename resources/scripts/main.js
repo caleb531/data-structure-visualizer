@@ -123,6 +123,8 @@ app.views.Controller = Backbone.View.extend({
 			this.saveAppState();
 		}
 	},
+	// Undo the last action performed by reverting to the previous state of the
+	// data structure
 	undoAction: function () {
 		var state = this.structureStateStack.pop();
 		if (state) {
