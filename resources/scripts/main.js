@@ -3,7 +3,7 @@
 // The controller view which watches for interaction with UI controls and
 // updates models/views according to values changed
 app.views.Controller = Backbone.View.extend({
-	appInitialized: false,
+	// Listen for changes to the UI and call the appropriate functions
 	events: {
 		'change .data-structure-options': 'switchStructure',
 		'click .execute': 'executeAction',
@@ -12,12 +12,13 @@ app.views.Controller = Backbone.View.extend({
 		'click .undo': 'undoAction',
 		'click .recenter': 'recenterCanvas'
 	},
-
+	// Initialize the view (this is called automatically by Backbone)
 	initialize: function () {
 		this.setMenuOptions('.data-structure-options',
 			app.views.Controller.structureList);
 		this.restoreAppState();
 	},
+	// Restore entire app state from localStorage
 	restoreAppState: function () {
 		var appStateStr = localStorage.getItem(this.constructor.storageKey);
 		if (appStateStr !== null) {
@@ -32,12 +33,14 @@ app.views.Controller = Backbone.View.extend({
 			this.setStructure(this.constructor.defaultStructure);
 		}
 	},
+	// Restore control values to the given values retrieved from localStorage
 	restoreControlValues: function (controls) {
 		this.$el.children('select').each(function () {
 			var $select = $(this);
 			$select.val(controls[$select.prop('class')]);
 		});
 	},
+	// Set the current data structure for the entire app
 	setStructure: function (structureName, structureState) {
 		// Variables pointing to constructors
 		var StructureModel = app.models[structureName];
@@ -58,11 +61,19 @@ app.views.Controller = Backbone.View.extend({
 		this.setMenuOptions('.src-pointer-options', StructureView.srcPointerOptions);
 		this.setMenuOptions('.dst-node-options', StructureView.dstNodeOptions);
 	},
+	// Switch data structures
 	switchStructure: function (event) {
+		// Reset the history
 		this.structureStateStack = [];
+		// Set the data structure using the current value of the Data Structure
+		// dropdown control
 		this.setStructure($(event.target).val());
+		// Save the current app state to localStorage because crucial state data
+		// has changed
 		this.saveAppState();
 	},
+	// Populate the dropdown menu matching the given selector with the given
+	// menu options
 	setMenuOptions: function (menuSelector, menuOptions) {
 		var $menu = this.$el.find(menuSelector);
 		$menu.empty();
@@ -73,17 +84,20 @@ app.views.Controller = Backbone.View.extend({
 				.appendTo($menu);
 		});
 	},
+	// Change the UI when some actions are selected or not
 	changeAction: function () {
-		// Disable source pointer dropdown if delete is selected
+		// Disable source pointer dropdown if 'delete' is selected
 		var action = this.$el.find('.action-options').val();
 		this.$el
 			.find('.src-pointer-options')
 			.prop('disabled', (action === 'delete'));
 	},
+	// Execute the selected action
 	executeAction: function () {
 		var action = this.$el.find('.action-options').val();
 		var srcPointerId = this.$el.find('.src-pointer-options').val();
 		var dstNodeId = this.$el.find('.dst-node-options').val();
+		// Save the data structure's current state (pre-execution)
 		this.structureStateStack.push(this.structureModel.getState());
 		if (action === 'set') {
 			var status = this.structureModel.setPointer(srcPointerId, dstNodeId);
@@ -138,7 +152,9 @@ app.views.Controller = Backbone.View.extend({
 			JSON.stringify(appState));
 	}
 }, {
+	// The key of the localStorage entry for the app
 	storageKey: 'data-structure-visualizer',
+	// The maximum number of states stored in the data structure state stack
 	maxStructureStates: 100,
 	// Options to display in list of available data structures in UI; the
 	// 'value' field maps to the exact names of the corresponding model and view
@@ -146,6 +162,7 @@ app.views.Controller = Backbone.View.extend({
 	structureList: [
 		{value: 'LinkedList', label: 'Linked List'}
 	],
+	// The default data structure to show when the app first launches
 	defaultStructure: 'LinkedList'
 });
 
