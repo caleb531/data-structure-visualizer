@@ -70,6 +70,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		//did we just introduce a cycle?
 		if (this.cycleDetected()) {
 			alert('You just created a cycle. Undoing...');
+			// Tell the main controller to undo the cycle-creating operation
 			return 'undo';
 		}
 	},
