@@ -10,6 +10,8 @@ app.models.LinkedListNode = Backbone.Model.extend({
 		// Indicates if the node was deleted/freed
 		freed: false
 	},
+	// Indicate that the 'elem' property will be used to uniquely identify a
+	// particular node (compared to other nodes in the below NodeCollection)
 	idAttribute: 'elem',
 	initiailize: function (elem) {
 		this.set('elem', elem);
@@ -21,14 +23,22 @@ var NodeCollection = Backbone.Collection.extend({
 	model: app.models.LinkedListNode,
 });
 
-// The model used to create and manipulate a linked list structure
+// The model used to create and manipulate a linked list structure; this model
+// MUST be accessible under the global app.models object with a name that
+// matches the corresponding 'value' in the main controller's structureList
 app.models.LinkedList = Backbone.Model.extend({
 	defaults: {
+		// A reference to the front first node in the list
 		front: null,
+		// A reference to the last node in the list
 		rear: null,
+		// References to arbitrary nodes used for iteration and list operations
+		// like deleting the ith node
 		t: null,
 		p: null
 	},
+	// Initialize the model (this is automatically called by Backbone whenever
+	// the model is instantiated)
 	initialize: function () {
 		// Store a collection of all nodes that are or used to be apart of the
 		// list (including nodes reachable from Front, as well as those that are
@@ -36,11 +46,14 @@ app.models.LinkedList = Backbone.Model.extend({
 		this.set('nodes', new NodeCollection());
 	},
 
-	// Trigger a segmentation fault by alerting the user
+	// Simulate a segmentation fault by alerting the user
 	triggerSegfault: function () {
 		alert('Segmentation fault!');
 	},
 
+	// REQUIRED: Manipulate the list by setting the pointers with the given IDs
+	// (e.g. "p" and "p-next", respectively); this function is called by the
+	// main controller
 	setPointer: function (srcPointerId, dstNodeId) {
 
 		if (srcPointerId === dstNodeId) {
@@ -56,18 +69,23 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 
 		if (srcPointerId.indexOf('-next') !== -1) {
+			// If source pointer ID is "*-next", set the actual "next" pointer
+			// for * appropriately
 			var node = this.get(srcPointerId.replace('-next', ''));
 			if (node) {
 				node.set('next', dstNode);
 			} else {
+				// If that *-next pointer doesn't point to anything, it must be
+				// freed memory; this should trigger a segfault
 				this.triggerSegfault();
 				return;
 			}
 		} else {
+			// Otherwise, set the pointer normally
 			this.set(srcPointerId, dstNode);
 		}
 
-		//did we just introduce a cycle?
+		// If this operation just created a cycle
 		if (this.cycleDetected()) {
 			alert('You just created a cycle. Undoing...');
 			// Tell the main controller to undo the cycle-creating operation
@@ -76,6 +94,7 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 
 
+	// Retrieve the destination node (i.e. the rvalue) from the given destination node ID (e.g. "p", "p-next", "null", "new-node", etc.)
 	getDstNode: function(dstNodeId) {
 
 		if (dstNodeId === 'null') {
@@ -105,6 +124,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 	},
 
+	// Prompt the user for an element value to use for instantiating a new node
 	getNewElemValue: function() {
 		var stop = false;
 		var promptMessage = 'Please enter a value for this new node';
@@ -133,24 +153,25 @@ app.models.LinkedList = Backbone.Model.extend({
 		return value;
 	},
 
+	// Return true if the given element value is not used by an existing node in
+	// the list; otherwise, return false
 	elemValueIsUnique: function(value) {
 		return (this.get('nodes').get(parseInt(value)) === undefined);
 	},
 
-
-	//Super simple implementation. This'll be as fast as a optimal solution, but it'll
-	///use up a wee bit of memory, whereas optimal solutions won't.
-	//If memory becomes an issue, I can transition to a fancy version. But for now, I believe the
-	//ease of understanding this algorithm outweights the fact that I'll use a wee bit of memory.
+	// Return true if the list has a cycle; otherwise, return false
 	cycleDetected: function() {
+		// Keep track of nodes we encounter while traversing the list (this
+		// assumes that element values are unique)
 		var nodesWeHaveSeen = {};
 		var currentNode = this.get('front');
 
 		while (currentNode !== null) {
+			// If we encounter the same node twice, the list has a cycle
 			if (nodesWeHaveSeen.hasOwnProperty(currentNode.get('elem'))) {
 				return true;
 			}
-
+			// Otherwise, mark the node as "seen" and move on
 			nodesWeHaveSeen[currentNode.get('elem')] = true;
 			currentNode = currentNode.get('next');
 		}
@@ -158,6 +179,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		return false;
 	},
 
+	// REQUIRED: deletes/frees/deallocates a node identified by the given dstNodeId (e.g. "rear", "p", "p-next", etc.)
 	deleteNode: function(dstNodeId) {
 		dstNodeId = dstNodeId.toLowerCase();
 
@@ -179,6 +201,9 @@ app.models.LinkedList = Backbone.Model.extend({
 
 	},
 
+	// Iterate through all nodes reachable from the Front node, calling the
+	// given function for each iteration; this function receives several
+	// arguments as indicated below
 	forEachReachable: function(callback) {
 		var front = this.get('front');
 		var rear = this.get('rear');
@@ -192,16 +217,19 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 	},
 
-	//If performance becomes an issue, we can use caching to speed this method up.
-
+	// Iterate through all nodes which cannot be reached from Front by following
+	// the pointer chain, calling the given function for each iteration
 	forEachUnreachable: function(callback) {
 		var front = this.get('front');
 		var rear = this.get('rear');
 		var p = this.get('p');
 		var t = this.get('t');
 		var currentNode = front;
+		// Keep track of nodes we have seen
 		var seenNodes = {};
 
+		// Iterate through the entire list once by following the pointer chain
+		// from Front; any nodes we encounter along the way are reachable
 		while (currentNode !== null) {
 			seenNodes[currentNode.get('elem')] = true;
 			currentNode = currentNode.get('next');
@@ -209,6 +237,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		var index = 0;
 
+		// Iterate through the list again; any nodes that we have not already encountered are considered "unreachable"
 		while (index < this.get('nodes').length) {
 			currentNode = this.get('nodes').at(index);
 
@@ -220,7 +249,7 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 	},
 
-	// Return the ID of the given node (or null of node is null)
+	// Return the ID of the given node (or null if node is null)
 	getNodeElem: function (node) {
 		if (node === null) {
 			return null;
@@ -229,7 +258,9 @@ app.models.LinkedList = Backbone.Model.extend({
 		}
 	},
 
-	// Return a serialized object representing the state of the list
+	// REQUIRED: Return a valid JSON object representing the state of the list;
+	// this function enables the main controller to save the state of the list
+	// to the history
 	getState: function () {
 		var state = {
 			front: this.getNodeElem(this.get('front')),
@@ -243,6 +274,9 @@ app.models.LinkedList = Backbone.Model.extend({
 		nodes.forEach(function (node) {
 			state.nodes.push({
 				elem: node.get('elem'),
+				// Convert node references to the numeric values of those
+				// respective nodes (to avoid duplicate node definitions in the
+				// serialized JSON)
 				next: model.getNodeElem(node.get('next')),
 				freed: node.get('freed')
 			});
@@ -250,7 +284,9 @@ app.models.LinkedList = Backbone.Model.extend({
 		return state;
 	},
 
-	// Update the model to reflect the given state object
+	// REQUIRED: Update the model to reflect the given JSON state object; this
+	// function is used by the main controller to undo operations and persist
+	// the state of the linked list across page loads
 	setState: function (state) {
 		var nodes = this.get('nodes');
 		// Empty the node collection before pushing new nodes
@@ -288,7 +324,7 @@ app.models.LinkedList = Backbone.Model.extend({
 
 	},
 
-	// Reset the list model to the default list (used to also initialize app)
+	// REQUIRED: Reset the list model to a default example list
 	reset: function () {
 		this.setState({
 			front: 24,
