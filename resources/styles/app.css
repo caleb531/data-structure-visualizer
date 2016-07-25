@@ -1,26 +1,32 @@
-/* App controls */
+/* Styling specific to the main app (excluding the Instructions page) */
 
+/* App controls */
 #controls {
 	margin-bottom: 20px;
 	font-size: 0;
 	text-align: center;
 }
+/* App dropdown controls */
 #controls select {
 	margin: 0 5px;
 	font-size: 16px;
 }
+/* The Data Structure dropdown control */
 #controls .data-structure-options {
 	display: block;
 	margin: 0 auto;
 	margin-bottom: 10px;
 }
+/* The container element for all UI buttons (like Execute) */
 #controls .buttons {
 	margin-top: 10px;
 }
+/* An actual UI button */
 #controls button {
 	margin: 0 5px;
 }
 
+/* The container element for the SVG canvas */
 #canvas-container {
 	width: 100%;
 	border: solid 2px #000;
@@ -31,13 +37,16 @@
 	font-size: 0;
 	overflow: hidden;
 }
+/* The actual SVG canvas */
 #canvas-container svg {
 	/* Raphael will try to override this; be assertive! */
 	overflow: visible !important;
 }
 
-/* Linked list styles */
+/* Data structure styles (these were written for styling linked lists, but they
+/* should apply equally to other (new) data structures as well) */
 
+/* Ensure that distinct data structure elements are stroked for prominence */
 .node-body,
 .pointer-arrow,
 .pointer-body,
@@ -50,21 +59,26 @@
 	opacity: 0.5;
 }
 
+/* The rectangular body of a node */
 .node-body,
+/* The circular body of a pointer */
 .pointer-body {
 	fill: #fff;
 }
+/* Do not display "next" pointer for freed nodes */
 .pointer-body.freed,
 .pointer-body.freed + .null {
 	display: none;
 }
+/* Darken unreachable nodes for emphasis */
 .node-body.unreachable,
 .pointer-body.unreachable {
 	fill: #ddd;
 }
 
-/* The elem value of a reachable node pointed to by an unreachable node */
+/* The label for a position pointer (like "F" for Front) */
 .pointer-label,
+/* The elem value of a reachable node pointed to by an unreachable node */
 .pointer-elem {
 	font-weight: bold;
 }
