@@ -124,8 +124,7 @@ app.models.LinkedList = Backbone.Model.extend({
 				promptMessage = 'Please enter a value that is not already used by another node';
 			} else {
 				// Otherwise, assume value is valid at this point
-				stop = true;
-				value = parseInt(value);
+				return parseInt(value);
 			}
 
 		}
