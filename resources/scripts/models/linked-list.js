@@ -27,7 +27,8 @@ app.models.LinkedList = Backbone.Model.extend({
 		front: null,
 		rear: null,
 		t: null,
-		p: null
+		p: null,
+		uniqueElemValueForDeletedNodes: -1
 	},
 	initialize: function () {
 		// Store a collection of all nodes that are or used to be apart of the
@@ -137,10 +138,10 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 
 
-	//Super simple implementation. This'll be as fast as a optimal solution, but it'll
-	///use up a wee bit of memory, whereas optimal solutions won't.
-	//If memory becomes an issue, I can transition to a fancy version. But for now, I believe the
-	//ease of understanding this algorithm outweights the fact that I'll use a wee bit of memory.
+	// Super simple implementation. This'll be as fast as a optimal solution, but it'll
+	// use up a wee bit of memory, whereas optimal solutions won't.
+	// If memory becomes an issue, I can transition to a fancy version. But for now, I believe the
+	// ease of understanding this algorithm outweights the fact that I'll use a wee bit of memory.
 	cycleDetected: function() {
 		var nodesWeHaveSeen = {};
 		var currentNode = this.get('front');
@@ -173,7 +174,10 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		dstNode.set('next', null);
 		dstNode.set('freed', true);
+		dstNode.set('elem', this.get('uniqueElemValueForDeletedNodes'));
 
+		// create the new value for the next deleted node
+		this.set('uniqueElemValueForDeletedNodes', this.get('uniqueElemValueForDeletedNodes') - 1);
 	},
 
 	forEachReachable: function(callback) {
