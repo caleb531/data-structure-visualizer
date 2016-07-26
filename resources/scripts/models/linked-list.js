@@ -18,7 +18,7 @@ app.models.LinkedListNode = Backbone.Model.extend({
 
 // The collection for creating an ordered sequence to store linked list nodes
 var NodeCollection = Backbone.Collection.extend({
-	model: app.models.LinkedListNode,
+	model: app.models.LinkedListNode
 });
 
 // The model used to create and manipulate a linked list structure
@@ -124,7 +124,8 @@ app.models.LinkedList = Backbone.Model.extend({
 				promptMessage = 'Please enter a value that is not already used by another node';
 			} else {
 				// Otherwise, assume value is valid at this point
-				return parseInt(value);
+				stop = true;
+				value = parseInt(value);
 			}
 
 		}
@@ -158,8 +159,6 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 
 	deleteNode: function(dstNodeId) {
-		dstNodeId = dstNodeId.toLowerCase();
-
 		if (dstNodeId === 'null') {
 			alert('Cannot delete NULL');
 			return;
