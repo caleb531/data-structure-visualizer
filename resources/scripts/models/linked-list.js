@@ -28,7 +28,12 @@ app.models.LinkedList = Backbone.Model.extend({
 		rear: null,
 		t: null,
 		p: null,
-		uniqueElemValueForDeletedNodes: -1
+		// A counter used to free up the elem values of freed nodes so that they
+		// can be used by newly-allocated nodes; when a node is freed, the
+		// curent value of the counter is used as the freed node's new elem
+		// value, after which the counter is decremented for the next freed node
+		// to use
+		freedNodeElemCounter: -1
 	},
 	initialize: function () {
 		// Store a collection of all nodes that are or used to be apart of the
@@ -174,10 +179,10 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		dstNode.set('next', null);
 		dstNode.set('freed', true);
-		dstNode.set('elem', this.get('uniqueElemValueForDeletedNodes'));
+		dstNode.set('elem', this.get('freedNodeElemCounter'));
 
 		// create the new value for the next deleted node
-		this.set('uniqueElemValueForDeletedNodes', this.get('uniqueElemValueForDeletedNodes') - 1);
+		this.set('freedNodeElemCounter', this.get('freedNodeElemCounter') - 1);
 	},
 
 	forEachReachable: function(callback) {
