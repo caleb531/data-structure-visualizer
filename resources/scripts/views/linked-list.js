@@ -14,7 +14,10 @@ var styles = {
 	specialPositionPointerOffset: 100
 };
 
-// The view used to display linked list models
+// The view used to display a linked list model; this view MUST be accessible
+// under the global app.views object with a name that matches the corresponding
+// 'value' in the main controller's structureList; the view also MUST inherit
+// from app.views.DataStructure
 app.views.LinkedList = app.views.DataStructure.extend({
 	// Draw the text label containing the value for this particular node
 	drawNodeElem: function (node, nodeX, nodeY, nodeElem, nodeClasses) {
@@ -157,6 +160,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		this.drawNodeElem(node, nodeX, nodeY, node.get('elem'), 'unreachable');
 		this.drawUnreachableNodeNextPointer(node, nodeX, nodeY, 'unreachable');
 	},
+	// Draw the circular body of a position pointer (e.g. Front, Rear, P, or T)
 	drawPositionPointerBody: function (pointerX, pointerY) {
 		this.canvas.circle(
 			pointerX,
@@ -166,6 +170,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', 'pointer-body'
 		);
 	},
+	// Dra the textual label of a position pointer
 	drawPositionPointerLabel: function (pointerX, pointerY, pointerId, labelName) {
 		this.canvas.text(
 			pointerX,
@@ -177,6 +182,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			'class', pointerId + '-label pointer-label'
 		);
 	},
+	// Draw the directional line/arrow of a position pointer
 	drawPositionPointerArrow: function (pointerX, pointerY, arrowX, arrowY) {
 		this.canvas.path([
 			'M',
@@ -307,6 +313,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 			nodeX += dx;
 		});
 	},
+	// REQUIRED: Visually render the view's associated model
 	render: function () {
 		// Clear canvas to start fresh
 		this.canvas.clear();
@@ -319,7 +326,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		this.drawSpecialPositionPointers();
 	}
 }, {
-	// Options to display for lvalue dropdown control on the left
+	// REQUIRED: Options to display for lvalue dropdown control on the left
 	srcPointerOptions: [
 		{value: 'front', label: 'Front'},
 		{value: 'front-next', label: 'Front->Next'},
@@ -330,7 +337,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		{value: 't', label: 'T'},
 		{value: 't-next', label: 'T->Next'}
 	],
-	// Options to display for rvalue dropdown control on the right
+	// REQUIRED: Options to display for rvalue dropdown control on the right
 	dstNodeOptions: [
 		{value: 'front', label: 'Front'},
 		{value: 'front-next', label: 'Front->Next'},
