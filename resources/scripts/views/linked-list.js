@@ -338,7 +338,7 @@ app.views.LinkedList = app.views.DataStructure.extend({
 		{value: 't-next', label: 'T->Next'}
 	],
 	// REQUIRED: Options to display for rvalue dropdown control on the right
-	dstNodeOptions: [
+	dstPointerOptions: [
 		{value: 'front', label: 'Front'},
 		{value: 'front-next', label: 'Front->Next'},
 		{value: 'rear', label: 'Rear'},

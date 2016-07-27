@@ -59,7 +59,7 @@ app.views.Controller = Backbone.View.extend({
 		this.structureView.render();
 		// Update dropdown menus with values specific to chosen data structure
 		this.setMenuOptions('.src-pointer-options', StructureView.srcPointerOptions);
-		this.setMenuOptions('.dst-node-options', StructureView.dstNodeOptions);
+		this.setMenuOptions('.dst-pointer-options', StructureView.dstPointerOptions);
 	},
 	// Switch to a different data structure to operate on
 	switchStructure: function (event) {
@@ -105,11 +105,11 @@ app.views.Controller = Backbone.View.extend({
 	executeAction: function () {
 		var action = this.$el.find('.action-options').val();
 		var srcPointerId = this.$el.find('.src-pointer-options').val();
-		var dstNodeId = this.$el.find('.dst-node-options').val();
+		var dstPointerId = this.$el.find('.dst-pointer-options').val();
 		// Save the data structure's current state (pre-execution)
 		this.pushStructureState(this.structureModel.getState());
 		if (action === 'set') {
-			var status = this.structureModel.setPointer(srcPointerId, dstNodeId);
+			var status = this.structureModel.setPointer(srcPointerId, dstPointerId);
 			// Undo when model reaches impossible state
 			if (status === 'undo') {
 				this.undoAction();
@@ -118,7 +118,7 @@ app.views.Controller = Backbone.View.extend({
 				this.saveAppState();
 			}
 		} else if (action === 'delete') {
-			this.structureModel.deleteNode(dstNodeId);
+			this.structureModel.deletePointer(dstPointerId);
 			this.structureView.render();
 			this.saveAppState();
 		}

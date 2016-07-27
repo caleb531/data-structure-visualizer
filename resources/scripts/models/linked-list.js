@@ -60,16 +60,16 @@ app.models.LinkedList = Backbone.Model.extend({
 	// REQUIRED: Manipulate the list by setting the pointers with the given IDs
 	// (e.g. "p" and "p-next", respectively); this function is called by the
 	// main controller
-	setPointer: function (srcPointerId, dstNodeId) {
+	setPointer: function (srcPointerId, dstPointerId) {
 
-		if (srcPointerId === dstNodeId) {
+		if (srcPointerId === dstPointerId) {
 			return;
 		}
 
-		var dstNode = this.getDstNode(dstNodeId);
+		var dstNode = this.getDstNode(dstPointerId);
 
 		// Check for segmentation faults
-		if ((dstNode !== null && dstNode.get('freed') === true) || (dstNode === null && dstNodeId.indexOf('-next') !== -1)) {
+		if ((dstNode !== null && dstNode.get('freed') === true) || (dstNode === null && dstPointerId.indexOf('-next') !== -1)) {
 			this.triggerSegfault();
 			return;
 		}
@@ -100,12 +100,13 @@ app.models.LinkedList = Backbone.Model.extend({
 	},
 
 
-	// Retrieve the destination node (i.e. the rvalue) from the given destination node ID (e.g. "p", "p-next", "null", "new-node", etc.)
-	getDstNode: function(dstNodeId) {
+	// Retrieve the destination node (i.e. the rvalue) from the given
+	// destination pointer ID (e.g. "p", "p-next", "null", "new-node", etc.)
+	getDstNode: function(dstPointerId) {
 
-		if (dstNodeId === 'null') {
+		if (dstPointerId === 'null') {
 			return null;
-		} else if (dstNodeId === 'new-node') {
+		} else if (dstPointerId === 'new-node') {
 			var newNode = new app.models.LinkedListNode({
 				//elem: prompt('Enter a new value for this node')
 				elem: this.getNewElemValue()
@@ -116,15 +117,15 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		} else {
 			// Handle case where Front, Rear, P, or *->Next is set as dst
-			if (dstNodeId.indexOf('-next') !== -1) {
-				var node = this.get(dstNodeId.replace('-next', ''));
+			if (dstPointerId.indexOf('-next') !== -1) {
+				var node = this.get(dstPointerId.replace('-next', ''));
 				if (node) {
 					return node.get('next');
 				} else {
 					return null;
 				}
 			} else {
-				return this.get(dstNodeId);
+				return this.get(dstPointerId);
 			}
 		}
 
@@ -185,14 +186,15 @@ app.models.LinkedList = Backbone.Model.extend({
 		return false;
 	},
 
-	// REQUIRED: deletes/frees/deallocates a node identified by the given dstNodeId (e.g. "rear", "p", "p-next", etc.)
-	deleteNode: function(dstNodeId) {
-		if (dstNodeId === 'null') {
+	// REQUIRED: deletes/frees/deallocates a node identified by the given
+	// dstPointerId (e.g. "rear", "p", "p-next", etc.)
+	deletePointer: function(dstPointerId) {
+		if (dstPointerId === 'null') {
 			alert('Cannot delete NULL');
 			return;
 		}
 
-		var dstNode = this.getDstNode(dstNodeId);
+		var dstNode = this.getDstNode(dstPointerId);
 
 		// Trigger segfault if user attempts to free already-free memory
 		if (dstNode.get('freed') === true) {
