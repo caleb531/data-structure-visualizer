@@ -1,4 +1,0 @@
-window.app = {
-	models: {},
-	views: {}
-};
