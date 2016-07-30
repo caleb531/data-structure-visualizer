@@ -68,10 +68,18 @@ app.models.LinkedList = Backbone.Model.extend({
 
 		var dstNode = this.getDstNode(dstPointerId);
 
-		// Check for segmentation faults
-		if ((dstNode !== null && dstNode.get('freed') === true) || (dstNode === null && dstPointerId.indexOf('-next') !== -1)) {
+		if (dstNode !== null && dstNode.get('freed') === true) {
+			// Trigger segfault if dstNode is actually freed memory
 			this.triggerSegfault();
 			return;
+		} else if (dstPointerId.indexOf('-next') !== -1) {
+			// Trigger segfault if setting "Next" of NULL or freed memory
+			var origPointer = this.getDstNode(
+				dstPointerId.replace('-next', ''));
+			if (origPointer === null || origPointer.get('freed') === true) {
+				this.triggerSegfault();
+				return;
+			}
 		}
 
 		if (srcPointerId.indexOf('-next') !== -1) {
