@@ -8,8 +8,8 @@ This app is an educational tool which allows students to operate on various data
 structures (such as the linked list) and immediately see a visual representation
 of the result.
 
-You can view the app online at:
-http://cis444.cs.csusm.edu/evans099/data-structure-visualizer/
+You can view the app online at:  
+https://projects.calebevans.me/data-structure-visualizer/
 
 ## User manual
 
